@@ -48,11 +48,13 @@ print("")
 sheffield_dataframe_updated = pd.read_csv('Sheffield Collision Data Updated.csv')
 
 #Removing Geospatial N/A data as these can't be imputed.
-sheffield_dataframe_updated.dropna(subset=['latitude'])
-sheffield_dataframe_updated.dropna(subset=['longitude'])
-sheffield_dataframe_updated.dropna(subset=['location_easting_osgr'])
-sheffield_dataframe_updated.dropna(subset=['location_northing_osgr'])
-
+sheffield_dataframe_updated = sheffield_dataframe_updated.dropna(subset=[
+    "latitude",
+    "longitude",
+    "location_easting_osgr",
+    "location_northing_osgr"
+])
+#Above, I have had to ensure that the program understands I want to update the dataset.
 
 #Reprinting the columsn containing N/A values to check that removal has worked.
 for column in sheffield_dataframe_updated.columns:

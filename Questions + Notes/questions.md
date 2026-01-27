@@ -9,4 +9,3 @@
 #Is dropna ok? I know we shouldn't drop entire columns/rows.
 
 #For encoding categorial variables, do we do this on a new excel file?
-

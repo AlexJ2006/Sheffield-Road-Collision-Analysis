@@ -55,21 +55,3 @@ sheffield_dataframe_updated = sheffield_dataframe_updated.dropna(subset=[
     "location_easting_osgr",
     "location_northing_osgr"
 ])
-#Above, I have had to ensure that the program understands I want to update the dataset.
-
-#Reprinting the columsn containing N/A values to check that removal has worked.
-for column in sheffield_dataframe_updated.columns:
-    if sheffield_dataframe_updated[column].isnull().any():
-        print(f"{column}")
-print("")
-
-# Beginning imputation - local authority highway current COLUMN
-
-mode_value = sheffield_dataframe_updated['local_authority_highway_current'].mode()[0] #Getting the modal (most common) value from the column
-
-sheffield_dataframe_updated['local_authority_highway_current'] = (
-    sheffield_dataframe_updated['local_authority_highway_current'] 
-    .fillna(mode_value) #Filling the n/a spaces with the modal value.
-)
-
-sheffield_dataframe_updated['local_authority_highway_current'].isna().sum() #Returning the final total of the n/a values present within the column (0)

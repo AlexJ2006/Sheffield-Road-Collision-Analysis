@@ -302,52 +302,86 @@ plt.show()
 
 #local_authority_highway_current                COUNT PLOT
 sbn.countplot(
-    data = sheffield_dataframe_updated,
-    x="local_authority_highway_current"
-    
+    data=sheffield_dataframe_updated.dropna(
+        subset=["local_authority_highway_current"]
+    ),
+    x="local_authority_highway_current",
+    order=[False, True]
 )
-plt.title("Number Of Collisions In The Local Area")
+plt.title("Number Of Collisions - Local Area")
 plt.ylabel("Count")
 plt.show()
 
+
 #local_authority_highway_current                PIE CHART
-count = sheffield_dataframe_updated["local_authority_highway_current"].value_counts()
+count = sheffield_dataframe_updated["local_authority_highway_current"] \
+    .value_counts(dropna=False)
 
-plt.title("Number Of Collisions In The Local Area")
-plt.pie(count, labels = count.index)
+plt.figure()
+plt.pie(
+    count,
+    labels=count.index,
+    autopct="%1.1f%%",
+    startangle=90
+)
+plt.title("Local Authority - Collisions")
+plt.axis("equal")
 plt.show()
-
 
 #collision_adjusted_severity_serious            COUNT PLOT
 sbn.countplot(
-    data = sheffield_dataframe_updated,
-    x="collision_adjusted_severity_serious"
+    data=sheffield_dataframe_updated.dropna(
+        subset=["collision_adjusted_severity_serious"]
+    ),
+    x="collision_adjusted_severity_serious",
+    order=[False, True]
 )
 plt.title("Count Plot - Serious Collisions")
 plt.ylabel("Count")
 plt.show()
 
-#collision_adjusted_severity_serious           PIE CHART
-count = sheffield_dataframe_updated["collision_adjusted_severity_serious"].value_counts()
 
-plt.pie(count, labels = count.index)
-plt.title("Pie Chart - Serious Collisions")
+
+#collision_adjusted_severity_serious           PIE CHART
+count = sheffield_dataframe_updated["collision_adjusted_severity_serious "] \
+    .value_counts(dropna=False)
+
+plt.figure()
+plt.pie(
+    count,
+    labels=count.index,
+    autopct="%1.1f%%",
+    startangle=90
+)
+plt.title("Severe Collisions")
+plt.axis("equal")
 plt.show()
 
 #collision_adjusted_severity_slight           COUNT PLOT
 sbn.countplot(
-    data = sheffield_dataframe_updated,
-    x="collision_adjusted_severity_slight"
+    data=sheffield_dataframe_updated.dropna(
+        subset=["collision_adjusted_severity_slight"]
+    ),
+    x="collision_adjusted_severity_slight",
+    order=[False, True]
 )
 plt.title("Count Plot - Slight Collisions")
 plt.ylabel("Count")
 plt.show()
 
 #collision_adjusted_severity_slight          PIE CHART
-count = sheffield_dataframe_updated["collision_adjusted_severity_slight"].value_counts()
+count = sheffield_dataframe_updated["collision_adjusted_severity_slight "] \
+    .value_counts(dropna=False)
 
-plt.pie(count, labels = count.index)
-plt.title("Pie Chart - Slight Collisions")
+plt.figure()
+plt.pie(
+    count,
+    labels=count.index,
+    autopct="%1.1f%%",
+    startangle=90
+)
+plt.title("Slight Collisions")
+plt.axis("equal")
 plt.show()
 
 #latitude                                       BOX PLOT

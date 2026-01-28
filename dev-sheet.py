@@ -24,30 +24,6 @@ print(sheffield_dataframe.shape)
 
 print(sheffield_dataframe['collision_adjusted_severity_slight'])
 
-sbn.scatterplot(
-    data=sheffield_dataframe,    # dataframe name
-    x='longitude',   # numeric variable on x-axis
-    y='latitude',    # numeric variable on y-axis
-    hue='longitude',    # color by class/species
-    style='longitude',  # different marker style by class
-    palette='Set1'      # color palette
-)
-
-plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #Reading a new CSV so that I can remove the data from it.
 sheffield_dataframe_updated = pd.read_csv('Sheffield Collision Data Updated.csv')
 

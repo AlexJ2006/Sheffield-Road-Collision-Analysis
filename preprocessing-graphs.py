@@ -343,7 +343,7 @@ plt.show()
 
 
 #collision_adjusted_severity_serious           PIE CHART
-count = sheffield_dataframe_updated["collision_adjusted_severity_serious "] \
+count = sheffield_dataframe_updated["collision_adjusted_severity_serious"] \
     .value_counts(dropna=False)
 
 plt.figure()
@@ -370,7 +370,7 @@ plt.ylabel("Count")
 plt.show()
 
 #collision_adjusted_severity_slight          PIE CHART
-count = sheffield_dataframe_updated["collision_adjusted_severity_slight "] \
+count = sheffield_dataframe_updated["collision_adjusted_severity_slight"] \
     .value_counts(dropna=False)
 
 plt.figure()

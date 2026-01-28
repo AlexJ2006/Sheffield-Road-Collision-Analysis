@@ -9,3 +9,11 @@
 #Is dropna ok? I know we shouldn't drop entire columns/rows.
 
 #For encoding categorial variables, do we do this on a new excel file?
+
+
+
+##For latitudinal and longitudinal data, can i leave these as N/A? I can't impute them.
+
+##Is it also necessary to fill the location_easting and northing values? I have filled them already but is this needed as again, this is spatial data.
+
+#For the accident severity, can I say that these are unknown instead of N/A?

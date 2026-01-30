@@ -110,8 +110,6 @@ sbn.histplot(sheffield_dataframe_updated['longitude'], bins=50)
 ax.set_title("Longitude - UPDATED")
 plt.show()
 
-
-
 #-------------------------------------------                Location Data               --------------------------------------------------------------------
 
 print('==================================================================')
@@ -272,8 +270,19 @@ plt.show()
 #UPDATED N/A COUNT
 collision_slight_na_sum_2 = sheffield_dataframe_updated['collision_adjusted_severity_slight'].isna().sum()
 print(f'CURRENT N/A Values - Slight Collisions', collision_slight_na_sum_2)
-print("")
 
+#Setting the severity_slight column to return 0 or 1.
+sheffield_dataframe_updated["collision_adjusted_severity_serious"] = (
+    sheffield_dataframe_updated["collision_adjusted_severity_serious"]
+        .astype(int)
+        .map({0: "Not serious", 1: "Serious"})
+)
+#Same for the slight section
+sheffield_dataframe_updated["collision_adjusted_severity_slight"] = (
+    sheffield_dataframe_updated["collision_adjusted_severity_slight"]
+        .astype(int)
+        .map({0: "Not slight", 1: "Slight"})
+)
 
 #-----------------------------------------              FINAL SANITY CHECK               ---------------------------------------------------
 
@@ -291,8 +300,6 @@ print("")
 print('==================================================================')
 print("")
 
-
-
 #-----------------------------------------              ADDITIONAL GRAPHS FOR HIGHER MARKS              ---------------------------------------------------
 
 #local_authority_highway_current                BAR CHART
@@ -308,7 +315,6 @@ sbn.countplot(
     x="local_authority_highway_current",
 )
 plt.title("Number Of Collisions - Local Area")
-plt.ylabel("Count")
 plt.show()
 
 #collision_adjusted_severity_serious            COUNT PLOT
@@ -319,7 +325,6 @@ sbn.countplot(
     x="collision_adjusted_severity_serious",
 )
 plt.title("Count Plot - Serious Collisions")
-plt.ylabel("Count")
 plt.show()
 
 #latitude                                       BOX PLOT

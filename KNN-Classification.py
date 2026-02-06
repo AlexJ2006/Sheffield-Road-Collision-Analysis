@@ -96,6 +96,8 @@ print("KNN accuracy:", KNN.score(x_test_fe, y_test))
 #collision_severity VS weather_conditions
 #collision_severity VS road_surface_conditions
 
+
+#       KNN 1                               Location (northing and easting)
 def plot_collision_knn(X, y, n_neighbors, weights):
 
     plot_df = X.copy()
@@ -164,3 +166,356 @@ plot_collision_knn(
     6,
     'uniform'
 )
+
+
+#       KNN 2                  Weather Conditions                                                 
+
+def plot_collision_knn(X, y, n_neighbors, weights):
+
+    plot_df = X.copy()
+    plot_df['collision_severity'] = y.values
+
+    plot_df = plot_df.dropna(subset=[
+        'weather_conditions',
+        'light_conditions'
+    ])
+
+    X_mat = plot_df[['weather_conditions',
+                     'light_conditions']].values
+
+    y_mat = plot_df['collision_severity'].values
+
+    # Creating color maps
+    cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF', '#AFAFAF'])
+    cmap_bold  = ListedColormap(['#FF0000', '#00FF00', '#0000FF', '#AFAFAF'])
+
+    clf = KNeighborsClassifier(n_neighbors=n_neighbors, weights=weights)
+    clf.fit(X_mat, y_mat)
+
+    # Plotting the decision boundary
+    mesh_step_size = 1
+    plot_symbol_size = 50
+
+    x_min, x_max = X_mat[:, 0].min() - 1, X_mat[:, 0].max() + 1
+    y_min, y_max = X_mat[:, 1].min() - 1, X_mat[:, 1].max() + 1
+
+    xx, yy = np.meshgrid(
+        np.arange(x_min, x_max, mesh_step_size),
+        np.arange(y_min, y_max, mesh_step_size)
+    )
+
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    plt.figure()
+    plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+
+    # Plot training points
+    plt.scatter(
+        X_mat[:, 0],
+        X_mat[:, 1],
+        s=plot_symbol_size,
+        c=y_mat,
+        cmap=cmap_bold,
+        edgecolor='black'
+    )
+
+    plt.xlim(xx.min(), xx.max())
+    plt.ylim(yy.min(), yy.max())
+
+    plt.xlabel('Weather Conditions')
+    plt.ylabel('Light Conditions')
+    plt.title(
+        "Collision severity KNN (k = %i, weights = '%s')" % (n_neighbors, weights)
+    )
+
+    plt.show()
+
+plot_collision_knn(
+    sheffield_dataframe_updated[['weather_conditions', 'light_conditions']],
+    y,
+    6,
+    'uniform'
+)
+
+#       KNN 3                               Speed Limit & Number Of Vehicles
+
+def plot_collision_knn(X, y, n_neighbors, weights):
+
+    plot_df = X.copy()
+    plot_df['collision_severity'] = y.values
+
+    plot_df = plot_df.dropna(subset=[
+        'speed_limit',
+        'number_of_vehicles'
+    ])
+
+    X_mat = plot_df[['speed_limit',
+                     'number_of_vehicles']].values
+
+    y_mat = plot_df['collision_severity'].values
+
+    # Creating color maps
+    cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF', '#AFAFAF'])
+    cmap_bold  = ListedColormap(['#FF0000', '#00FF00', '#0000FF', '#AFAFAF'])
+
+    clf = KNeighborsClassifier(n_neighbors=n_neighbors, weights=weights)
+    clf.fit(X_mat, y_mat)
+
+    # Plotting the decision boundary
+    mesh_step_size = 1
+    plot_symbol_size = 50
+
+    x_min, x_max = X_mat[:, 0].min() - 1, X_mat[:, 0].max() + 1
+    y_min, y_max = X_mat[:, 1].min() - 1, X_mat[:, 1].max() + 1
+
+    xx, yy = np.meshgrid(
+        np.arange(x_min, x_max, mesh_step_size),
+        np.arange(y_min, y_max, mesh_step_size)
+    )
+
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    plt.figure()
+    plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+
+    # Plot training points
+    plt.scatter(
+        X_mat[:, 0],
+        X_mat[:, 1],
+        s=plot_symbol_size,
+        c=y_mat,
+        cmap=cmap_bold,
+        edgecolor='black'
+    )
+
+    plt.xlim(xx.min(), xx.max())
+    plt.ylim(yy.min(), yy.max())
+
+    plt.xlabel('speed_limit')
+    plt.ylabel('number_of_vehicles')
+    plt.title(
+        "Collision severity KNN (k = %i, weights = '%s')" % (n_neighbors, weights)
+    )
+
+    plt.show()
+
+plot_collision_knn(
+    sheffield_dataframe_updated[['speed_limit', 'number_of_vehicles']],
+    y,
+    6,
+    'uniform'
+)
+
+#       KNN 4                               Road Type & Road Surface Conditions
+
+def plot_collision_knn(X, y, n_neighbors, weights):
+
+    plot_df = X.copy()
+    plot_df['collision_severity'] = y.values
+
+    plot_df = plot_df.dropna(subset=[
+        'road_type',
+        'road_surface_conditions'
+    ])
+
+    X_mat = plot_df[['road_type',
+                     'road_surface_conditions']].values
+
+    y_mat = plot_df['collision_severity'].values
+
+    # Creating color maps
+    cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF', '#AFAFAF'])
+    cmap_bold  = ListedColormap(['#FF0000', '#00FF00', '#0000FF', '#AFAFAF'])
+
+    clf = KNeighborsClassifier(n_neighbors=n_neighbors, weights=weights)
+    clf.fit(X_mat, y_mat)
+
+    # Plotting the decision boundary
+    mesh_step_size = 1
+    plot_symbol_size = 50
+
+    x_min, x_max = X_mat[:, 0].min() - 1, X_mat[:, 0].max() + 1
+    y_min, y_max = X_mat[:, 1].min() - 1, X_mat[:, 1].max() + 1
+
+    xx, yy = np.meshgrid(
+        np.arange(x_min, x_max, mesh_step_size),
+        np.arange(y_min, y_max, mesh_step_size)
+    )
+
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    plt.figure()
+    plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+
+    # Plot training points
+    plt.scatter(
+        X_mat[:, 0],
+        X_mat[:, 1],
+        s=plot_symbol_size,
+        c=y_mat,
+        cmap=cmap_bold,
+        edgecolor='black'
+    )
+
+    plt.xlim(xx.min(), xx.max())
+    plt.ylim(yy.min(), yy.max())
+
+    plt.xlabel('road_type')
+    plt.ylabel('road_surface_conditions')
+    plt.title(
+        "Collision severity KNN (k = %i, weights = '%s')" % (n_neighbors, weights)
+    )
+
+    plt.show()
+
+plot_collision_knn(
+    sheffield_dataframe_updated[['road_type', 'road_surface_conditions']],
+    y,
+    6,
+    'uniform'
+)
+
+#       KNN 4                               Day Of The Week & Area Type (Urban Or Rural)
+
+def plot_collision_knn(X, y, n_neighbors, weights):
+
+    plot_df = X.copy()
+    plot_df['collision_severity'] = y.values
+
+    plot_df = plot_df.dropna(subset=[
+        'day_of_week',
+        'urban_or_rural_area'
+    ])
+
+    X_mat = plot_df[['day_of_week',
+                     'urban_or_rural_area']].values
+
+    y_mat = plot_df['collision_severity'].values
+
+    # Creating color maps
+    cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF', '#AFAFAF'])
+    cmap_bold  = ListedColormap(['#FF0000', '#00FF00', '#0000FF', '#AFAFAF'])
+
+    clf = KNeighborsClassifier(n_neighbors=n_neighbors, weights=weights)
+    clf.fit(X_mat, y_mat)
+
+    # Plotting the decision boundary
+    mesh_step_size = 1
+    plot_symbol_size = 50
+
+    x_min, x_max = X_mat[:, 0].min() - 1, X_mat[:, 0].max() + 1
+    y_min, y_max = X_mat[:, 1].min() - 1, X_mat[:, 1].max() + 1
+
+    xx, yy = np.meshgrid(
+        np.arange(x_min, x_max, mesh_step_size),
+        np.arange(y_min, y_max, mesh_step_size)
+    )
+
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    plt.figure()
+    plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+
+    # Plot training points
+    plt.scatter(
+        X_mat[:, 0],
+        X_mat[:, 1],
+        s=plot_symbol_size,
+        c=y_mat,
+        cmap=cmap_bold,
+        edgecolor='black'
+    )
+
+    plt.xlim(xx.min(), xx.max())
+    plt.ylim(yy.min(), yy.max())
+
+    plt.xlabel('day_of_week')
+    plt.ylabel('urban_or_rural_area')
+    plt.title(
+        "Collision severity KNN (k = %i, weights = '%s')" % (n_neighbors, weights)
+    )
+
+    plt.show()
+
+plot_collision_knn(
+    sheffield_dataframe_updated[['day_of_week', 'urban_or_rural_area']],
+    y,
+    6,
+    'uniform'
+)
+
+#       KNN 5                               Junction Detail & Junction Control
+
+def plot_collision_knn(X, y, n_neighbors, weights):
+
+    plot_df = X.copy()
+    plot_df['collision_severity'] = y.values
+
+    plot_df = plot_df.dropna(subset=[
+        'junction_detail',
+        'junction_control'
+    ])
+
+    X_mat = plot_df[['junction_detail',
+                     'junction_control']].values
+
+    y_mat = plot_df['collision_severity'].values
+
+    # Creating color maps
+    cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF', '#AFAFAF'])
+    cmap_bold  = ListedColormap(['#FF0000', '#00FF00', '#0000FF', '#AFAFAF'])
+
+    clf = KNeighborsClassifier(n_neighbors=n_neighbors, weights=weights)
+    clf.fit(X_mat, y_mat)
+
+    # Plotting the decision boundary
+    mesh_step_size = 2
+    plot_symbol_size = 50
+
+    x_min, x_max = X_mat[:, 0].min() - 1, X_mat[:, 0].max() + 1
+    y_min, y_max = X_mat[:, 1].min() - 1, X_mat[:, 1].max() + 1
+
+    xx, yy = np.meshgrid(
+        np.arange(x_min, x_max, mesh_step_size),
+        np.arange(y_min, y_max, mesh_step_size)
+    )
+
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    plt.figure()
+    plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+
+    # Plot training points
+    plt.scatter(
+        X_mat[:, 0],
+        X_mat[:, 1],
+        s=plot_symbol_size,
+        c=y_mat,
+        cmap=cmap_bold,
+        edgecolor='black'
+    )
+
+    plt.xlim(xx.min(), xx.max())
+    plt.ylim(yy.min(), yy.max())
+
+    plt.xlabel('junction_detail')
+    plt.ylabel('junction_control')
+    plt.title(
+        "Collision severity KNN (k = %i, weights = '%s')" % (n_neighbors, weights)
+    )
+
+    plt.show()
+
+plot_collision_knn(
+    sheffield_dataframe_updated[['junction_detail', 'junction_control']],
+    y,
+    6,
+    'uniform'
+)
+
+#   All of my KNN's are plotted against Collision Severity.

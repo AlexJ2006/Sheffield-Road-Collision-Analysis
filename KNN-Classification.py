@@ -521,7 +521,6 @@ plot_collision_knn(
 
 #   All of my KNN's are plotted against Collision Severity.
 
-
 #   Working on the KNN Elbow Method
 k_values = range(1, 21)
 error_rates = []

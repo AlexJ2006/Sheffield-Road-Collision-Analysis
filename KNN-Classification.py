@@ -13,6 +13,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score
 
 #Reading the updated CSV file that contains the preprocessed, cleaned dataset.
 #This was cleaned in the file named "preprocessing-graphs"
@@ -519,3 +520,28 @@ plot_collision_knn(
 )
 
 #   All of my KNN's are plotted against Collision Severity.
+
+
+#   Working on the KNN Elbow Method
+k_values = range(1, 21)
+error_rates = []
+
+for k in k_values:
+    knn_elbow = KNeighborsClassifier(n_neighbors=k)
+
+    knn_elbow.fit(x_train_fe, y_train)
+
+    y_pred = knn_elbow.predict(x_test_fe)
+
+    error = 1 - accuracy_score(y_test, y_pred)
+    error_rates.append(error)
+
+plt.figure(figsize=(8, 5))
+plt.plot(k_values, error_rates, marker='o')
+plt.xlabel("Number of neighbours (k)")
+plt.ylabel("Error rate")
+plt.title("Elbow Method for KNN (Sheffield collision dataset)")
+plt.grid(True)
+plt.show()
+
+

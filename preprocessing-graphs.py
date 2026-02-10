@@ -412,3 +412,8 @@ plt.title("Collision Locations")
 plt.xlabel("Northing")
 plt.ylabel("Easting")
 plt.show()
+
+sheffield_dataframe_updated.to_csv(
+    "Sheffield Collision Data Cleaned.csv",
+    index=False
+)

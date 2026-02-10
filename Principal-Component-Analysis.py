@@ -15,15 +15,16 @@ sheffield_dataframe_updated = pd.read_csv('Sheffield Collision Data Cleaned.csv'
 #   Displaying the first 20 rows
 print(sheffield_dataframe_updated.head(20))
 
-#INSERT COLUMNS TO BE DROPPED   ==========================================================================
 x = sheffield_dataframe_updated.select_dtypes(include=["number"])
-x = x.drop(columns=["collision_adjusted_severity_serious", "collision_adjusted_severity_slight"]) #Dropping the items present within the column that I will use as the label.
 
-#   ======================================================================================================
-y =sheffield_dataframe_updated['collision_adjusted_severity_serious'].astype(int)   #As an integer so it gives a numeric value
+x = x.drop(columns=["collision_adjusted_severity_serious","collision_adjusted_severity_slight"],
+    errors="ignore"
+)   #Dropping the items present within the column that I will use as the label.
+
+y =sheffield_dataframe_updated['collision_adjusted_severity_serious'].map({"Not serious": 0, "Serious": 1}) #As an integer so it gives a numeric value
+print(y.isna().sum())   #Ensuring none of the y values are null.
 
 #Displaying a Correlation Heatmap (based on the x values entered above)
-
 corr_matrix = x.corr()
 
 plt.figure(figsize=(6,5))

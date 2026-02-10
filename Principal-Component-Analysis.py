@@ -16,10 +16,11 @@ sheffield_dataframe_updated = pd.read_csv('Sheffield Collision Data Cleaned.csv'
 print(sheffield_dataframe_updated.head(20))
 
 #INSERT COLUMNS TO BE DROPPED   ==========================================================================
-x = sheffield_dataframe_updated.drop([],axis=1)
+x = sheffield_dataframe_updated.select_dtypes(include=["number"])
+x = x.drop(columns=["collision_adjusted_severity_serious", "collision_adjusted_severity_slight"]) #Dropping the items present within the column that I will use as the label.
 
 #   ======================================================================================================
-y =sheffield_dataframe_updated['']
+y =sheffield_dataframe_updated['collision_adjusted_severity_serious'].astype(int)   #As an integer so it gives a numeric value
 
 #Displaying a Correlation Heatmap (based on the x values entered above)
 
@@ -78,7 +79,7 @@ plt.show()
 
 #Creating a PCA DataFrame
 pca_sheffield_dataframe_updated = pd.DataFrame(x_pca_train, columns=['Principal Component 1', 'Principal Component 2'] )
-pca_sheffield_dataframe_updated['categorical_column'] = y
+pca_sheffield_dataframe_updated['categorical_column'] = y_train
 
 #Plotting the PCA
 import seaborn
@@ -87,18 +88,18 @@ seaborn.scatterplot(
     data=pca_sheffield_dataframe_updated,
     x='Principal Component 1',
     y='Principal Component 2',
-    hue='fruit_name',                               #NEEDS CHANGING
+    hue='categorical_column',                               
     s=100
 )
-plt.title('PCA on Fruits Dataset')                  #NEEDS CHANGING
+plt.title('PCA on Collision Dataset')                  
 plt.xlabel('Principal Component 1')
 plt.ylabel('Principal Component 2')
-plt.legend(title='fruit_name')                      #NEEDS CHANGING
+plt.legend(title='Serious Collisions')                      
 plt.show()
 
 loadings = pd.DataFrame(
     pca.components_.T,
-    index=X.columns,
+    index=x.columns,
     columns=['PC1', 'PC2']
 )
 
@@ -119,8 +120,8 @@ plt.show()
 
 #PCA Interactive Plot
 # Create DataFrame for PCA
-pca_df = pd.DataFrame(X_pca_train, columns=['PC1', 'PC2'])
-pca_df['fruit_name'] = y  # replace with your label column
+pca_df = pd.DataFrame(x_pca_train, columns=['PC1', 'PC2'])
+pca_df['Label'] = y_train  # replace with your label column
 
 # Define a custom color palette for better contrast
 custom_colors = ['#1f77b4',  # blue
@@ -139,11 +140,11 @@ fig = px.scatter(
     pca_df,
     x='PC1',
     y='PC2',
-    color='fruit_name',
-    symbol='fruit_name',
+    color='Label',
+    symbol='Label',
     color_discrete_sequence=custom_colors,
     hover_data=pca_df.columns,
-    title="Interactive 2D PCA of Fruits Dataset",
+    title="Interactive 2D PCA of the Collision Analysis Dataset",
     width=800,
     height=600
 )
@@ -187,7 +188,7 @@ Z = Z_numeric.reshape(xx.shape)
 plt.figure(figsize=(8,6))
 plt.contourf(xx, yy, Z, alpha=0.3, cmap='Set1')
 sbn.scatterplot(x=x_pca_train[:,0], y=x_pca_train[:,1], hue=y_train, s=100)
-plt.title("KNN Classification on PCA-reduced Fruits Data")
+plt.title("KNN Classification on PCA-reduced collision Data for Sheffield")
 plt.xlabel("PC1")
 plt.ylabel("PC2")
 plt.show()

@@ -542,5 +542,3 @@ plt.ylabel("Error rate")
 plt.title("Elbow Method for KNN (Sheffield collision dataset)")
 plt.grid(True)
 plt.show()
-
-

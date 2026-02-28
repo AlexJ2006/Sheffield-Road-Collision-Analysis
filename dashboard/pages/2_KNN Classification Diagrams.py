@@ -14,7 +14,7 @@ def load_data():
 
 df = load_data()
 
-st.markdown("Simple KNN visualisation using two numeric variables.")
+st.markdown("This page presents simple KNN visualisations using two numeric variables.")
 
 # Select two numeric columns
 numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()

@@ -15,7 +15,6 @@ print(sheffield_dataframe.shape)    #   Displaying the number of columns and row
 print(sheffield_dataframe.isnull().sum())   #   How many items within each column are null? - result shows none.
 print("")
 
-
 #       PAIR PLOT
 
 #sbn.pairplot(sheffield_dataframe, plot_kws={'color': 'orange'})

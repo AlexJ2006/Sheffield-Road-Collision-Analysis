@@ -50,3 +50,59 @@ sheffield_dataframe_updated['local_authority_highway_current'].isna().sum() #Ret
 #collision_adjusted_severity_slight
 
 #Need to also get the data types of the items
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.metrics import accuracy_score
+
+# Read data
+sheffield_dataframe_updated = pd.read_csv('Sheffield Collision Data Cleaned.csv')
+
+# Feature and label
+X = sheffield_dataframe_updated[['weather_conditions']]
+y = sheffield_dataframe_updated['collision_severity']
+
+# Split
+x_train, x_test, y_train, y_test = train_test_split(
+    X, y, random_state=3
+)
+
+# ---------------------------------
+# 1.12 Encode + standardise features
+# ---------------------------------
+
+encoder = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
+
+x_train_encoded = encoder.fit_transform(x_train)
+x_test_encoded = encoder.transform(x_test)
+
+scaler = StandardScaler()
+
+x_train_scaled = scaler.fit_transform(x_train_encoded)
+x_test_scaled = scaler.transform(x_test_encoded)
+
+# ---------------------------------
+# 1.13 Build SVM (linear kernel)
+# ---------------------------------
+
+svm_linear = SVC(
+    C=1,
+    kernel='linear',
+    class_weight='balanced'
+)
+
+# ---------------------------------
+# 1.14 Train
+# ---------------------------------
+
+svm_linear.fit(x_train_scaled, y_train)
+
+# ---------------------------------
+# 1.15 Test
+# ---------------------------------
+
+y_pred = svm_linear.predict(x_test_scaled)
+
+print("Accuracy:", accuracy_score(y_test, y_pred))

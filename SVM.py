@@ -120,9 +120,6 @@ print(accuracy_score(y_test, y_pred))
 
 # print("\nDone.")
 
-
-
-
 #Building an SVM Classifier (RBF Kernel)
 
 SVM_classifier = SVC(C=1, kernel='poly',class_weight=None, gamma='scale')
@@ -134,7 +131,4 @@ y_pred = svc_linear.predict(x_test_scaled)
 
 #   Printing the accuracy of the model
 print(accuracy_score(y_test, y_pred))
-
-
-
 

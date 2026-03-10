@@ -104,7 +104,6 @@ loadings = pd.DataFrame(
     columns=['PC1', 'PC2']
 )
 
-
 #PCA HEATMAP
 plt.figure(figsize=(8, 6))
 sbn.heatmap(

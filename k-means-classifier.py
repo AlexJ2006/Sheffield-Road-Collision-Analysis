@@ -1,6 +1,8 @@
 import pandas as pd
 import seaborn as sbn
-import matplotlib as plt
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 #Reading the updated CSV file that contains the preprocessed, cleaned dataset.
 #This was cleaned in the file named "preprocessing-graphs"
@@ -12,14 +14,12 @@ print(sheffield_dataframe_updated.head()) #Printing the first 5 rows for the dat
 
 sheffield_dataframe_updated.describe()  #Describing the dataset (how many rows and columns)
 
-sbn.pairplot()
+sbn.pairplot(sheffield_dataframe_updated[['speed_limit', 'number_of_vehicles']])
 
-#Displaying a Correlation Heatmap (based on the x values entered above)
-corr_matrix = x.corr()
+#Creating the feature and label variables
 
-plt.figure(figsize=(6,5))
-sbn.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f")
-plt.title("Feature Correlation Matrix")
-plt.show()
+x = sheffield_dataframe_updated[['weather_conditions']]
+y = sheffield_dataframe_updated['collision_severity']
 
+# I have used a correlation heatmap from a previous week, rather than re-building it.
 

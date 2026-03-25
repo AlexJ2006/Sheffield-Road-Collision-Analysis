@@ -69,9 +69,7 @@ x_train, x_test, y_train, y_test = train_test_split(
     X, y, random_state=3
 )
 
-# ---------------------------------
-# 1.12 Encode + standardise features
-# ---------------------------------
+# Encode and Standardise the features
 
 encoder = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
 
@@ -83,9 +81,7 @@ scaler = StandardScaler()
 x_train_scaled = scaler.fit_transform(x_train_encoded)
 x_test_scaled = scaler.transform(x_test_encoded)
 
-# ---------------------------------
-# 1.13 Build SVM (linear kernel)
-# ---------------------------------
+# Build SVM using linear Kernel
 
 svm_linear = SVC(
     C=1,
@@ -93,15 +89,11 @@ svm_linear = SVC(
     class_weight='balanced'
 )
 
-# ---------------------------------
-# 1.14 Train
-# ---------------------------------
+# Train data
 
 svm_linear.fit(x_train_scaled, y_train)
 
-# ---------------------------------
-# 1.15 Test
-# ---------------------------------
+# Test data
 
 y_pred = svm_linear.predict(x_test_scaled)
 

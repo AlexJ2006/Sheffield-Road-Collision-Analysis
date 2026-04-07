@@ -12,7 +12,7 @@ import plotly.express as px
 #   Reading the DataSet that has been cleaned
 sheffield_dataframe_updated = pd.read_csv('Sheffield Collision Data Cleaned.csv')
 
-#   Displaying the first 20 rows
+#   Displaying the first 20 rowsa
 print(sheffield_dataframe_updated.head(20))
 
 x = sheffield_dataframe_updated.select_dtypes(include=["number"])

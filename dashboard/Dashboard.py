@@ -1,5 +1,5 @@
 import pandas as pd
-import seaborn as sns
+import seaborn as sbn
 import matplotlib.pyplot as plt
 import streamlit as st
 
@@ -79,6 +79,7 @@ with col2:
         x_options,
         key="x_col"
     )
+
 # Only show the Y selector when needed
 y_required = chart_type not in ["Histogram", "KDE plot", "Count plot"]
 
@@ -100,30 +101,31 @@ with col3:
     else:
         y_col = None
         st.markdown("Y variable not required for this chart.")
+        
 # Plot Area
 fig, ax = plt.subplots(figsize=(9, 6))
 
 try:
     if chart_type == "Scatter plot":
-        sns.scatterplot(data=df, x=x_col, y=y_col, ax=ax)
+        sbn.scatterplot(data=df, x=x_col, y=y_col, ax=ax)
 
     elif chart_type == "Line plot":
-        sns.lineplot(data=df, x=x_col, y=y_col, ax=ax)
+        sbn.lineplot(data=df, x=x_col, y=y_col, ax=ax)
 
     elif chart_type == "Bar chart":
-        sns.barplot(data=df, x=x_col, y=y_col, ax=ax)
+        sbn.barplot(data=df, x=x_col, y=y_col, ax=ax)
 
     elif chart_type == "Count plot":
-        sns.countplot(data=df, x=x_col, ax=ax)
+        sbn.countplot(data=df, x=x_col, ax=ax)
 
     elif chart_type == "Box plot":
-        sns.boxplot(data=df, x=x_col, y=y_col, ax=ax)
+        sbn.boxplot(data=df, x=x_col, y=y_col, ax=ax)
 
     elif chart_type == "Histogram":
-        sns.histplot(data=df, x=x_col, bins=40, ax=ax)
+        sbn.histplot(data=df, x=x_col, bins=40, ax=ax)
 
     elif chart_type == "KDE plot":
-        sns.kdeplot(data=df[x_col].dropna(), ax=ax)
+        sbn.kdeplot(data=df[x_col].dropna(), ax=ax)
 
     if y_col is None:
         ax.set_title(f"{chart_type} – {x_col}")

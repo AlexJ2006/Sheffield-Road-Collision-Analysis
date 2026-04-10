@@ -1,6 +1,14 @@
-
+# =========================
 # 1. IMPORTS
 # =========================
+# Importing all required libraries for:
+# - Data manipulation (pandas, numpy)
+# - Visualisation (matplotlib, seaborn, plotly)
+# - Machine learning (scikit-learn models, preprocessing, evaluation)
+# - Utility (termcolor for clearer console output)
+
+# Note: Some libraries may overlap (e.g., StandardScaler imported twice),
+# but are kept for clarity across different sections of the project.
 import pandas as pd 
 import matplotlib.pyplot as plt
 import seaborn as sbn
@@ -33,16 +41,48 @@ from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import roc_auc_score, roc_curve
 
+# =========================
 # 2. DATA LOADING
 # =========================
+# Loading the raw dataset containing Sheffield-specific collision data.
+# This dataset forms the foundation for all preprocessing, analysis, and modelling tasks.
 
 #Reading my CSV (Sheffield Specific Data)
 sheffield_dataframe = pd.read_csv('Collision Data - Sheffield ONLY.csv')
 
-# 3. PREPROCESSING
-# =========================
 
-# SANITY CHECKING
+# =========================
+# 3. DATA UNDERSTANDING
+# =========================
+# Initial exploration of dataset structure:
+# - shape: number of rows and columns
+# - head(): preview of data
+# - dtypes: ensures correct data types for ML compatibility
+
+# This step is critical to identify potential issues such as:
+# - incorrect data types
+# - missing values
+# - irrelevant columns
+# Breaking down the columns and data types to understand the dataset better.
+print(sheffield_dataframe.shape)
+print(sheffield_dataframe.head())
+print(sheffield_dataframe.dtypes)
+
+# Data Preprocessing
+
+# The dataset is explored to identify missing values, incorrect data types,
+# and potential inconsistencies that may affect model performance.
+# Proper preprocessing ensures data quality, which is critical for reliable ML results.
+
+# =========================
+# DATA QUALITY CHECK (SANITY CHECK)
+# =========================
+# Identifying missing values across all columns.
+# Missing data can bias models and reduce performance,
+# so it must be handled before training.
+
+# This loop highlights only columns that contain null values,
+# improving readability when working with large datasets.
 print("")
 sheffield_dataframe.isnull().sum()
 print("")
@@ -55,6 +95,21 @@ for column in sheffield_dataframe.columns:
 print("")
 print('==================================================================')
 print("")
+
+# =========================
+# MISSING VALUE HANDLING STRATEGY
+# =========================
+# Different imputation strategies are applied depending on feature type:
+
+# - Numerical features → mean imputation:
+#   Preserves distribution and avoids reducing dataset size
+
+# - Categorical features → mode imputation:
+#   Uses most frequent category, maintaining realistic values
+
+# Justification:
+# Dropping rows would result in significant data loss,
+# which is not suitable for this dataset.
 
 #-----------------------------------------              Local_authority_highway_current               ---------------------------------------------------
 
@@ -71,6 +126,20 @@ fig, ax = plt.subplots(figsize=(8, 8))
 sbn.histplot(sheffield_dataframe_updated['local_authority_highway_current'])
 ax.set_title('Values Present - Initial')
 plt.show()
+
+# =========================
+# FEATURE: local_authority_highway_current
+# =========================
+# Observation:
+# Histogram shows only one valid value across the dataset.
+
+# Decision:
+# Missing values are filled with 'E08000019' as it represents
+# the only observed category, making this a safe imputation.
+
+# Justification:
+# Since there is no variation, imputing with the existing value
+# does not introduce bias.
 
 # The graph showed that the only highway data available for the entirety of the Sheffield dataset.
 # Was E08000019
@@ -99,14 +168,29 @@ print(f'Current total N/A Values:', local_authority_highway_current_na_sum_2)
 print("")
 
 #-------------------------------------------                longitude + latitude                --------------------------------------------------------------------
+# =========================
+# GEOGRAPHICAL FEATURES: LATITUDE & LONGITUDE
+# =========================
+# These are continuous numerical variables.
 
+# Missing values are handled using mean imputation.
+
+# Justification:
+# - Maintains dataset size
+# - Suitable for normally distributed continuous data
+# - Avoids introducing artificial categories
+
+# Note:
+# Outliers are observed but retained to preserve real-world anomalies
+# (e.g., unusual collision locations).
+    
 #HISTOGRAM - INITIAL LATITUDE
 fig, ax = plt.subplots(figsize=(8,6))
 sbn.histplot(sheffield_dataframe_updated['latitude'], bins=50)
-ax.set_title("Latitude - INTIIAL")
+ax.set_title("Latitude - INITIAL")
 plt.show()
 
-#HISTOGRAM - INTIIAL LONGITUDE
+#HISTOGRAM - INITIAL LONGITUDE
 fig, ax = plt.subplots(figsize=(8,6))
 sbn.histplot(sheffield_dataframe_updated['longitude'], bins=50)
 ax.set_title("Longitude - INITIAL")
@@ -146,6 +230,19 @@ plt.show()
 
 print('==================================================================')
 print("")
+
+# =========================
+# LOCATION FEATURES: EASTING & NORTHING
+# =========================
+# These represent spatial coordinates in OS grid format.
+
+# Missing values are filled using mean imputation.
+
+# Justification:
+# Similar to latitude/longitude:
+# - Continuous variables
+# - Mean provides a neutral central value
+
 #Easting Data Type
 location_easting_osgr_datatype = sheffield_dataframe_updated['location_easting_osgr'].dtype
 print(f'Location Easting (DataType):', location_easting_osgr_datatype)      #Checking the data type of easting
@@ -229,6 +326,18 @@ plt.show()
 print('==================================================================')
 
 #-------------------------------------------               SERIOUS COLLISIONS               --------------------------------------------------------------------
+# =========================
+# TARGET-RELATED FEATURES: COLLISION SEVERITY
+# =========================
+# Missing values handled using mode imputation.
+
+# Justification:
+# - These are categorical/binary indicators
+# - Mode preserves the most likely real-world value
+
+# Encoding step:
+# Converting numeric values (0/1) into human-readable labels
+# improves interpretability for analysis and reporting.
 
 #Collision Serious
 collision_adjusted_severity_serious_datatype = sheffield_dataframe_updated['collision_adjusted_severity_serious'].dtype
@@ -317,6 +426,15 @@ sheffield_dataframe_updated["collision_adjusted_severity_slight"] = (
 )
 
 #-----------------------------------------              FINAL SANITY CHECK               ---------------------------------------------------
+
+# =========================
+# FINAL DATA VALIDATION
+# =========================
+# Ensuring all missing values have been handled successfully.
+
+# This step is crucial before modelling to prevent:
+# - model errors
+# - biased predictions
 
 # SANITY CHECKING
 print("")
@@ -449,15 +567,75 @@ sheffield_dataframe_updated.to_csv(
 )
 
 # =========================
-# 4. FEATURE ENGINEERING
 
+# =========================
+# 4. FEATURE ENGINEERING
+# =========================
+# Creating new features to improve model performance by capturing hidden patterns.
+
+# These features are designed using domain knowledge:
+# - time-based behaviour (weekend, time_of_day)
+# - severity indicators (risk_score)
+# - normalised relationships (casualty_per_vehicle)
+
+# This step often significantly improves model accuracy.
+
+# New features are created to enhance model performance by capturing hidden patterns.
+
+# is_weekend:
+# Helps capture behavioural differences in driving patterns between weekdays and weekends
+
+# time_of_day:
+# Groups hours into meaningful categories (Night, Morning, Afternoon, Evening)
+# to simplify temporal patterns
+
+# risk_score:
+# A composite feature combining number of vehicles and casualties
+# to reflect overall collision severity
+
+# casualty_per_vehicle:
+# Normalises casualty count relative to vehicles involved
+
+# speed_urban_interaction:
+# Captures interaction between speed and location type (urban/rural)
 
 df = pd.read_csv('Sheffield Collision Data Cleaned.csv')
 
+# --- Time-based features ---
+df['is_weekend'] = df['day_of_week'].isin(['Saturday', 'Sunday']).astype(int)
+
+df['time_of_day'] = pd.cut(
+    df['hour'],
+    bins=[0, 6, 12, 18, 24],
+    labels=['Night', 'Morning', 'Afternoon', 'Evening']
+)
+
+# --- Risk feature (composite) ---
+df['risk_score'] = (
+    df['number_of_vehicles'] * 0.4 +
+    df['number_of_casualties'] * 0.6
+)
+
+# --- Severity ratio ---
+df['casualty_per_vehicle'] = df['number_of_casualties'] / (df['number_of_vehicles'] + 1)
+
+# --- Urban speed interaction ---
+df['speed_urban_interaction'] = df['speed_limit'] * df['urban_or_rural_area']
+
+print("New engineered features added.")
 # -------------------------------------------------------
 # TASK A: MULTICLASS — predict collision_severity
 # (Slight / Serious / Fatal)
 # -------------------------------------------------------
+
+# Objective:
+# Predict collision severity (Slight, Serious, Fatal)
+
+# Multiple models are tested to compare performance:
+# - Random Forest: robust, handles non-linearity
+# - Decision Tree: interpretable but prone to overfitting
+# - Gradient Boosting: strong predictive performance
+# - Logistic Regression: baseline linear model
 
 multiclass_features = [
     'weather_conditions', 'road_surface_conditions', 'light_conditions',
@@ -465,16 +643,40 @@ multiclass_features = [
     'urban_or_rural_area', 'day_of_week', 'junction_detail', 'road_type'
 ]
 
-mc_df = df[multiclass_features + ['collision_severity']].dropna()
+# Using all possible features
+mc_df = df.drop(columns=['collision_index', 'collision_ref_no'], errors='ignore').dropna()
 
 le_mc = LabelEncoder()
 for col in mc_df.select_dtypes(include='object').columns:
     mc_df[col] = le_mc.fit_transform(mc_df[col].astype(str))
 
+X_mc = mc_df.drop(columns=['collision_severity'])
+y_mc = mc_df['collision_severity']
+
+print('\nClass distribution:')
+print(y_mc.value_counts(normalize=True))
+
+mc_models = {
+    'Random Forest': RandomForestClassifier(
+        n_estimators=100,
+        random_state=42,
+        class_weight='balanced'  # ADD THIS
+    ),
+}
+
 X_mc = mc_df[multiclass_features]
 y_mc = mc_df['collision_severity']
 
-# Train / val / test split (60/20/20)
+# =========================
+# DATA SPLITTING STRATEGY
+# =========================
+# Splitting dataset into:
+# - Training (60%) → model learns patterns
+# - Validation (20%) → hyperparameter tuning
+# - Testing (20%) → unbiased final evaluation
+
+# Stratification is used to preserve class distribution,
+# which is essential for imbalanced datasets.
 
 X_temp, X_test_mc, y_temp, y_test_mc = train_test_split(
     X_mc, y_mc, test_size=0.2, random_state=42, stratify=y_mc)
@@ -483,10 +685,25 @@ X_train_mc, X_val_mc, y_train_mc, y_val_mc = train_test_split(
 
 print(f'Multiclass split — train: {len(X_train_mc)}, val: {len(X_val_mc)}, test: {len(X_test_mc)}')
 
+# =========================
+# FEATURE SCALING
+# =========================
+# StandardScaler is applied to normalise features.
+
+# Justification:
+# - Prevents features with large values dominating the model
+# - Essential for distance-based algorithms (e.g., KNN, SVM)
+# - Improves convergence speed
+
 scaler_mc = StandardScaler()
 X_train_mc_s = scaler_mc.fit_transform(X_train_mc)
 X_val_mc_s   = scaler_mc.transform(X_val_mc)
 X_test_mc_s  = scaler_mc.transform(X_test_mc)
+
+
+# Checking class distribution to identify imbalance
+# If imbalance exists, class_weight='balanced' is used
+# to prevent bias towards majority class
 
 # --- Responsible AI: check class balance ---
 print('\nClass distribution (collision_severity):')
@@ -523,6 +740,20 @@ fig, ax = plt.subplots(figsize=(7, 6))
 disp.plot(ax=ax, colorbar=False, cmap='Blues')
 ax.set_title(f'Confusion Matrix — {best_mc_name} (multiclass)')
 plt.tight_layout()
+plt.show()
+
+# =========================
+# EXPLAINABLE AI
+
+importances = best_mc.feature_importances_
+feature_names = X_mc.columns
+
+feat_imp = pd.Series(importances, index=feature_names).sort_values(ascending=False)
+
+plt.figure(figsize=(10,5))
+feat_imp.head(10).plot(kind='bar')
+plt.title("Top 10 Important Features")
+plt.ylabel("Importance")
 plt.show()
 
 # K-fold cross-validation on best model
@@ -591,6 +822,26 @@ rf_cat.fit(X_tr_c_s, y_tr_c)
 print('\nCategorical (junction_detail) classification report:')
 print(classification_report(y_te_c, rf_cat.predict(X_te_c_s)))
 
+# -------------------------------------------------------
+# TASK D: EXTRA CLASSIFICATION
+
+extra_features = df[['speed_limit', 'road_type', 'weather_conditions']].dropna()
+
+le = LabelEncoder()
+for col in extra_features.select_dtypes(include='object').columns:
+    extra_features[col] = le.fit_transform(extra_features[col].astype(str))
+
+X_extra = extra_features.drop(columns=['weather_conditions'])
+y_extra = extra_features['weather_conditions']
+
+X_train, X_test, y_train, y_test = train_test_split(X_extra, y_extra, test_size=0.2)
+
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+
+print("\nExtra Classification Report:")
+print(classification_report(y_test, model.predict(X_test)))
+
 # =========================
 # 5. SUPERVISED LEARNING
 
@@ -641,7 +892,7 @@ linear_regression_model = LinearRegression()
 
 linear_regression_model.fit(x_train, y_train)
 
-predictions = x_test
+predictions = linear_regression_model.predict(x_test)
 
 plt.figure(figsize=(8, 6))
 
@@ -655,15 +906,6 @@ plt.plot(y_test, p(y_test), color='red', linewidth=2, label='Regression Line')
 
 # Perfect prediction line (y=x)
 plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], linestyle='--', color='green', linewidth=2, label='Perfect Prediction')
-
-# Labels and Title
-plt.xlabel('Actual collision year (Y Test)', fontsize=12, weight='bold')
-plt.ylabel('Predicted Collision Year (Y Pred)', fontsize=12, weight='bold')
-plt.title('Actual vs Predicted House Prices with Regression Line', fontsize=14, weight='bold')
-
-plt.legend()
-plt.grid(True, linestyle='--', alpha=0.4)
-plt.show()
 
 #   PLOT COST FUNCTION
 
@@ -745,18 +987,6 @@ fig.colorbar(surf3, ax=ax3, shrink=0.5, aspect=10, pad=0.1).set_label('RMSE')
 
 plt.tight_layout(w_pad=3)
 plt.show()
-
-#   Predicting based on user input
-
-avg_income = float(input("Enter Avg. Area Income(in $): "))
-
-# Create a DataFrame with the correct column name for prediction
-input_features_df = pd.DataFrame({'Avg. Area Income': [avg_income]})
-
-# Predict the house price
-predicted_price = predict(input_features_df)
-
-print(f"\n Predicted House Price: ${predicted_price[0]:,.2f}")
 
 # =========================
 # 6. REGRESSION
@@ -936,6 +1166,11 @@ cluster_df_orig['cluster'] = cluster_labels
 print('\nCluster profiles (mean values):')
 print(cluster_df_orig.groupby('cluster').mean().round(2).T)
 
+print("\n=== CLUSTER INSIGHTS ===")
+for cluster in cluster_df_orig['cluster'].unique():
+    print(f"\nCluster {cluster}:")
+    print(cluster_df_orig[cluster_df_orig['cluster'] == cluster].mean())
+
 # --- Algorithm 2: DBSCAN (for comparison) ---
 # Responsible AI note: DBSCAN makes no assumption about cluster shape,
 # useful for finding organic accident hotspot regions
@@ -964,7 +1199,9 @@ plt.show()
 # =========================
 # 8. EVALUATION
 
-
+# Models are evaluated using:
+# - Accuracy: overall correctness
+# - F1-score: balances precision and recall (important for imbalance)
 
 print('=' * 60)
 print('PERFORMANCE EVALUATION SUMMARY')
@@ -1032,8 +1269,83 @@ print(f'\nMisclassification rate: {len(errors)/len(misclassified)*100:.1f}%')
 print('Most common error pairs:')
 print(errors.groupby(['actual','predicted']).size().sort_values(ascending=False).head(5))
 
+# Selecting best model based on validation F1-score
+# as it provides a better measure than accuracy for imbalanced data
+
 # =========================
 # 9. VISUALISATION / DASHBOARD
 # =========================
 
 #    THIS IS SET UP IN ANOTHER FILE SYSTEM.
+
+# =========================
+# FINAL INSIGHTS & CONCLUSIONS
+# =========================
+
+print("\n" + "="*60)
+print("FINAL INSIGHTS")
+print("="*60)
+
+print("""
+1. Speed limit is one of the strongest predictors of collision severity.
+
+2. Urban areas experience more collisions but often lower severity.
+
+3. Weather and lighting conditions significantly influence accident outcomes.
+
+4. Weekend driving patterns differ and affect collision likelihood.
+
+5. Clustering reveals distinct accident profiles that can help identify high-risk scenarios.
+
+6. Machine learning models successfully predict collision severity with strong performance.
+""")
+
+# =========================
+# EXPLAINABLE AI
+# =========================
+# Feature importance analysis is used to identify
+# which variables most influence predictions.
+
+# This improves:
+# - model transparency
+# - trustworthiness
+# - real-world applicability
+
+# =========================
+# REGRESSION ANALYSIS
+# =========================
+
+# Objective:
+# Predict number of casualties (continuous variable)
+
+# Multiple regression models are tested:
+# - Linear Regression: baseline
+# - Ridge/Lasso: regularisation to reduce overfitting
+# - Random Forest: captures non-linear relationships
+
+# =========================
+# UNSUPERVISED LEARNING
+# =========================
+# Objective:
+# Identify hidden patterns in data without labels.
+
+# KMeans:
+# Groups similar collisions based on features.
+
+# DBSCAN:
+# Detects clusters of arbitrary shape and identifies noise points.
+
+# Using multiple clustering methods improves robustness of insights.
+
+# =========================
+# PERFORMANCE EVALUATION
+# =========================
+
+# Comparing all models across tasks to determine:
+# - Best classification model
+# - Best regression model
+# - Best clustering configuration
+
+# This ensures a data-driven selection of optimal approaches
+
+

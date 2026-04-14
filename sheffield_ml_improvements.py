@@ -36,6 +36,8 @@ import plotly.graph_objects as go
 from matplotlib.ticker import FormatStrFormatter
 from sklearn import metrics
 import warnings
+import folium
+from folium.plugins import HeatMap, MarkerCluster
 warnings.filterwarnings('ignore')
 
 # Optional: folium for geospatial maps (install if not present)

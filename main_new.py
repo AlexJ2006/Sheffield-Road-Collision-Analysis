@@ -7,10 +7,18 @@
 
 print("SCRIPT RUNNING")
 
+# This is my own function that I have created. This allows me to easily enter a blank line wherever I would like one.
+def breakLine():
+    print("")
+
+# Starting to import all of the libraries.
+# All of these libraries are required throughout the model for various tasks such as data manipulation, visualisation, machine learning
+# dimensionality reduction, and geospatial analysis.
+# Rather than have these dotted throughout the code, I thought it would be easier to manage them (add or remove imports as required) if they were all in one accessible place.
+import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_score
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import seaborn as sbn
 from termcolor import colored
@@ -37,26 +45,26 @@ from sklearn.metrics import (
     roc_auc_score, roc_curve
 )
 import plotly.express as px
-import plotly.graph_objects as go
-from matplotlib.ticker import FormatStrFormatter
-from sklearn import metrics as sk_metrics
-import tensorflow as tf
-import keras from tensorflow
-import Sequential from keras.models
-import Dense, input from keras.show_layer_names
 
-# Data Loading and preprocessing
+# ====================================================================      Data Preprocessing      ======================================================
+# Beginning the process of pre-processing the dataset.
+# This is the first step and one of the most important steps to get right.
 # Loading in the raw Sheffield-specific collision dataset.
 
-print("=" * 70)
+print("=" * 70) # Printing "=" 70 times. I will do this throughout the model so that I can see whereabouts the different sections are, upon runtime.
 print("SHEFFIELD ROAD COLLISION ANALYSIS — Loading Data")
 print("=" * 70)
+breakLine()
+sheffield_dataframe = pd.read_csv('Collision Data - Sheffield ONLY.csv') # Loading in the raw (initial) dataset.
+# This dataset has been taken straight from the UK government site.
+# Therefore, it is likely to have some missing value, some innacuracies and some outliers.
+# I aim to handle these issues within this section.
+# At the end of the section, I will re-save the dataset as a new, cleaned file that I can use confidently throughout the rest of my work.
 
-sheffield_dataframe = pd.read_csv('Collision Data - Sheffield ONLY.csv')
-
-print(f"\nDataset shape: {sheffield_dataframe.shape}")
-print("\nFirst 5 rows:")
-print(sheffield_dataframe.head())
+print("Dataset shape:", {sheffield_dataframe.shape}) # Printing the shape fo the dataset.
+breakLine()
+print("First 5 rows:")
+print(sheffield_dataframe.head()) # Printing the head of the dataframe. Without any intervention, this will display the first 5 rows of the dataset.
 print("\nData types:")
 print(sheffield_dataframe.dtypes)
 print(f"\nTotal columns: {len(sheffield_dataframe.columns)}")
@@ -226,6 +234,54 @@ plt.show()
 
 fig, axes = plt.subplots(2, 3, figsize=(18, 10))
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+print("Message 1")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Collision count plot
 sbn.countplot(
     data=sheffield_dataframe_updated.dropna(
@@ -375,6 +431,31 @@ if 'collision_age' in df.columns:
 plt.suptitle('Feature Engineering — Distributions', fontsize=14)
 plt.tight_layout()
 plt.show()
+
+
+
+
+
+
+
+
+
+
+
+print("Message 2")
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Supervised Learning - Classification
 
@@ -1465,21 +1546,4 @@ print("=" * 70)
 print("Analysis complete. All outputs saved/displayed above.")
 print("=" * 70)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import plot_model from keras.utils
-
-plot_model(model, to_file'model_plot.png', show_shapes=True, show_layer_names=True)
+print("end")

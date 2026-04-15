@@ -21,7 +21,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.patches as mpatches
 import seaborn as sbn
-from termcolor import colored
+
 from sklearn.preprocessing import StandardScaler, LabelEncoder, MinMaxScaler
 from sklearn.decomposition import PCA
 from sklearn.model_selection import (
@@ -45,30 +45,51 @@ from sklearn.metrics import (
     roc_auc_score, roc_curve
 )
 import plotly.express as px
+print("Before imports")
+
+import matplotlib.pyplot as plt
+print("matplotlib OK")
+
+import pandas as pd
+print("pandas OK")
+
+import seaborn as sbn
+print("seaborn OK")
+
+from termcolor import colored
+print("termcolor OK")
 
 # ====================================================================      Data Preprocessing      ======================================================
 # Beginning the process of pre-processing the dataset.
 # This is the first step and one of the most important steps to get right.
 # Loading in the raw Sheffield-specific collision dataset.
-
+breakLine()
 print("=" * 70) # Printing "=" 70 times. I will do this throughout the model so that I can see whereabouts the different sections are, upon runtime.
 print("SHEFFIELD ROAD COLLISION ANALYSIS — Loading Data")
 print("=" * 70)
 breakLine()
 sheffield_dataframe = pd.read_csv('Collision Data - Sheffield ONLY.csv') # Loading in the raw (initial) dataset.
-# This dataset has been taken straight from the UK government site.
-# Therefore, it is likely to have some missing value, some innacuracies and some outliers.
-# I aim to handle these issues within this section.
-# At the end of the section, I will re-save the dataset as a new, cleaned file that I can use confidently throughout the rest of my work.
+# # This dataset has been taken straight from the UK government site.
+# # Therefore, it is likely to have some missing value, some innacuracies and some outliers.
+# # I aim to handle these issues within this section.
+# # At the end of the section, I will re-save the dataset as a new, cleaned file that I can use confidently throughout the rest of my work.
 
-print("Dataset shape:", {sheffield_dataframe.shape}) # Printing the shape fo the dataset.
+print("Dataset shape:", sheffield_dataframe.shape) # Printing the shape fo the dataset.
 breakLine()
 print("First 5 rows:")
+breakLine()
 print(sheffield_dataframe.head()) # Printing the head of the dataframe. Without any intervention, this will display the first 5 rows of the dataset.
-print("\nData types:")
+breakLine()
+print("Data types:")
+breakLine()
 print(sheffield_dataframe.dtypes)
-print(f"\nTotal columns: {len(sheffield_dataframe.columns)}")
+breakLine()
+print(f"Total columns: {len(sheffield_dataframe.columns)}")
+breakLine()
 print(f"Total records: {len(sheffield_dataframe)}")
+breakLine()
+
+# =================================================================================================================
 
 # Data Preprocessing
 
@@ -86,9 +107,10 @@ print(f"Total records: {len(sheffield_dataframe)}")
 print("\n" + "=" * 70)
 print("3. DATA PREPROCESSING")
 print("=" * 70)
-
+breakLine()
 # Initial Search for missing values across all of the columns within the dataset.
-print(colored("\nColumns containing missing values (initial scan):", '31'))
+print(("Columns containing missing values (initial scan):", '31'))
+
 missing_cols = [col for col in sheffield_dataframe.columns
                 if sheffield_dataframe[col].isnull().any()]
 for col in missing_cols:
@@ -127,7 +149,6 @@ plt.show()
 
 na_after = sheffield_dataframe_updated['local_authority_highway_current'].isna().sum()
 print(f"  N/A after:  {na_after}")
-
 
 # Latitude & Longitude - Numerical
 
@@ -365,11 +386,14 @@ print("=" * 70)
 
 df = pd.read_csv('Sheffield Collision Data Cleaned.csv')
 
+df['hour'] = pd.to_datetime(df['time'], errors='coerce').dt.hour    # Extrapolating the hour from the time column within the dataset.
+
+
 # Time-based features
-df['is_weekend'] = df['day_of_week'].isin(['Saturday', 'Sunday']).astype(int)
+df['is_weekend'] = df['day_of_week'].isin(['Saturday', 'Sunday']).astype(int)   # Extrapolating the day of the week based on the day_of_week column wthin the dataset.
 
 df['time_of_day'] = pd.cut(
-    df['hour'],
+    df['hour'], # I then use the new hour column here to create a time of day section which categorises the time of day into four different categories.
     bins=[0, 6, 12, 18, 24],
     labels=['Night', 'Morning', 'Afternoon', 'Evening'],
     include_lowest=True

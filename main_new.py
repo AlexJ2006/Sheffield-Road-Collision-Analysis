@@ -2,27 +2,24 @@
 # Importing all of the required libraries for data manipulation, visualisation,
 # machine learning, dimensionality reduction, and geospatial analysis.
 
-import warnings
-warnings.filterwarnings('ignore')
+#import warnings
+#warnings.filterwarnings('ignore')
 
+print("SCRIPT RUNNING")
+
+from sklearn.metrics import silhouette_score
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import seaborn as sbn
 from termcolor import colored
-
-# Sklearn — preprocessing
 from sklearn.preprocessing import StandardScaler, LabelEncoder, MinMaxScaler
 from sklearn.decomposition import PCA
-
-# Sklearn — model selection
 from sklearn.model_selection import (
     train_test_split, cross_val_score,
     StratifiedKFold, GridSearchCV, KFold
 )
-
-# Sklearn — classification models
 from sklearn.ensemble import (
     RandomForestClassifier, GradientBoostingClassifier
 )
@@ -30,27 +27,23 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-
-# Sklearn — regression models
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-
-# Sklearn — clustering
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
-
-# Sklearn — metrics
 from sklearn.metrics import (
     accuracy_score, f1_score, classification_report,
     confusion_matrix, ConfusionMatrixDisplay,
     mean_absolute_error, mean_squared_error, r2_score,
     roc_auc_score, roc_curve
 )
-
-# Visualisation tools
 import plotly.express as px
 import plotly.graph_objects as go
 from matplotlib.ticker import FormatStrFormatter
 from sklearn import metrics as sk_metrics
+import tensorflow as tf
+import keras from tensorflow
+import Sequential from keras.models
+import Dense, input from keras.show_layer_names
 
 # Data Loading and preprocessing
 # Loading in the raw Sheffield-specific collision dataset.
@@ -59,7 +52,7 @@ print("=" * 70)
 print("SHEFFIELD ROAD COLLISION ANALYSIS — Loading Data")
 print("=" * 70)
 
-sheffield_dataframe = pd.read_csv('/data/Collision Data - Sheffield ONLY.csv')
+sheffield_dataframe = pd.read_csv('Collision Data - Sheffield ONLY.csv')
 
 print(f"\nDataset shape: {sheffield_dataframe.shape}")
 print("\nFirst 5 rows:")
@@ -353,7 +346,7 @@ for f in new_features:
     if f in df.columns:
         print(f"  + {f}")
 
-# Visualise engineered features
+# Visualising engineered features
 fig, axes = plt.subplots(2, 3, figsize=(16, 10))
 
 sbn.countplot(data=df, x='is_weekend', ax=axes[0, 0], palette='Set2')
@@ -383,18 +376,10 @@ plt.suptitle('Feature Engineering — Distributions', fontsize=14)
 plt.tight_layout()
 plt.show()
 
-# =============================================================================
-# 5. SUPERVISED LEARNING — CLASSIFICATION
-# =============================================================================
+# Supervised Learning - Classification
+
 # The dataset is split into train / validation / test (60/20/20).
-# Stratified splitting preserves class distributions — essential for imbalanced data.
-# Multiple algorithms are compared per task to identify the most suitable model.
-#
-# Responsible AI practices applied throughout:
-#   - class_weight='balanced' addresses class imbalance
-#   - Cross-validation prevents overfitting to a single split
-#   - Misclassification analysis identifies where models fail
-#   - Feature importance provides model transparency
+# I haev compared multiple algorithms per task to identify the most suitable model for the dataset.
 
 print("\n" + "=" * 70)
 print("5. SUPERVISED LEARNING")
@@ -415,8 +400,7 @@ plt.title("Feature Correlation Matrix — Sheffield Collision Data", fontsize=13
 plt.tight_layout()
 plt.show()
 
-# =============================================================================
-# TASK A: MULTICLASS CLASSIFICATION — collision_severity (Slight/Serious/Fatal)
+# Multiclass Classification
 
 # Multi Class Classification for:
     # collision_severity_slight
@@ -455,7 +439,7 @@ print('\nClass distribution (collision_severity):')
 print(y_mc.value_counts(normalize=True).round(3))
 print('\nResponsible AI: class imbalance detected — class_weight=balanced applied')
 
-# 60/20/20 stratified split
+# 60/20/20 data split
 X_temp, X_test_mc, y_temp, y_test_mc = train_test_split(
     X_mc, y_mc, test_size=0.2, random_state=42, stratify=y_mc)
 X_train_mc, X_val_mc, y_train_mc, y_val_mc = train_test_split(
@@ -555,11 +539,15 @@ ax.grid(True, axis='y', linestyle='--', alpha=0.4)
 plt.tight_layout()
 plt.show()
 
-# =============================================================================
-# TASK B: BINARY CLASSIFICATION — urban_or_rural_area
-# =============================================================================
-# Predicts whether a collision occurred in an urban (1) or rural (0) area.
-# Binary task demonstrates ROC-AUC analysis and hyperparameter tuning.
+# Binary Classification - urban_or_rural_area
+
+# Here, I aim to predict whether a collision occurred in an urban or rural area.
+# An Urban area will be marked with a 1 and a rural area will be marked with a 0.
+
+# Below, I have used ROC-AUC analysis and hyperparameter tuning.
+# I used GridSearchCV to optimise the RF model based on the F1 score.
+# At the same time, I used ROC-AUC analysis to evaluate the model's ability to tell the difference between urban and rural collisions
+# across the limits of each classification type.
 
 print("\n--- TASK B: Binary Classification (urban_or_rural_area) ---")
 
@@ -628,10 +616,7 @@ ax.set_title('Task B — Confusion Matrix (Urban/Rural)')
 plt.tight_layout()
 plt.show()
 
-# =============================================================================
-# TASK C: CATEGORICAL CLASSIFICATION — junction_detail (7 classes)
-# =============================================================================
-# Multi-category prediction of junction type at collision location.
+# Categorial Classification - junction)detail
 
 print("\n--- TASK C: Categorical Classification (junction_detail) ---")
 
@@ -682,9 +667,7 @@ ax.set_ylabel('Actual')
 plt.tight_layout()
 plt.show()
 
-# =============================================================================
-# TASK D: BINARY — police_officer_attend (Did police attend scene?)
-# =============================================================================
+# police_officer_attend - Binary Classification
 # More meaningful binary task than weather prediction.
 # Police attendance is relevant for road safety policy decisions.
 
@@ -745,13 +728,17 @@ else:
     print(f"  Column '{police_target}' not found — skipping Task D.")
     print("  (Ensure column name matches your dataset exactly)")
 
-# =============================================================================
-# 6. REGRESSION ANALYSIS
-# =============================================================================
-# Multiple regression models predict number_of_casualties (continuous target).
-# Four algorithms are compared: Linear, Ridge, Lasso, Random Forest.
-# Train/val/test split + k-fold cross-validation for robust evaluation.
-# Residual plot added for error analysis.
+# Regression Analysis
+# Within this section, multiple regression models were used to predict the number_of_casualties.
+# Four different algorithms were compared. These were:
+#   linear
+#   Ridge
+#   Lasso
+#   Random Forest (RF)
+
+# I have also split the data into Train/Val/Test. 
+# This allowed me to perform a k-fold cross-validation test to evaluate the results.
+# I then added a residual plot for error analysis.
 
 print("\n" + "=" * 70)
 print("6. REGRESSION ANALYSIS")
@@ -759,7 +746,7 @@ print("=" * 70)
 
 df_reg = pd.read_csv('Sheffield Collision Data Cleaned.csv')
 
-# Re-apply engineered features to regression dataframe
+# Re-applying engineered features to the regression dataframe
 df_reg['is_weekend'] = df_reg['day_of_week'].isin(
     ['Saturday', 'Sunday']).astype(int)
 df_reg['risk_score'] = (df_reg['number_of_vehicles'] * 0.4 +
@@ -833,7 +820,7 @@ cv_r2 = cross_val_score(best_reg, X_reg, y_reg, cv=kf, scoring='r2')
 print(f'\n5-fold CV R² — {best_reg_name}: '
       f'{cv_r2.mean():.3f} ± {cv_r2.std():.3f}')
 
-# Actual vs predicted scatter
+# Actual vs predicted scatter plot
 plt.figure(figsize=(8, 6))
 plt.scatter(y_te_r, y_pred_reg, alpha=0.4, color='steelblue', s=15)
 plt.plot([y_te_r.min(), y_te_r.max()],
@@ -847,7 +834,7 @@ plt.grid(True, linestyle='--', alpha=0.4)
 plt.tight_layout()
 plt.show()
 
-# Residual plot — error analysis
+# Residual plot — for error analysis
 residuals = y_te_r - y_pred_reg
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 axes[0].scatter(y_pred_reg, residuals, alpha=0.4, color='coral', s=15)
@@ -905,7 +892,7 @@ direction = "decreasing" if slope < 0 else "increasing"
 print(f'\nTrend analysis: collisions are {direction} '
       f'at {abs(slope):.1f} per year in Sheffield.')
 
-# Collision frequency by month (seasonal trend)
+# Collision frequency by month. This shows the seasonal collision trends.
 if 'date' in df_reg.columns:
     df_reg['month'] = pd.to_datetime(df_reg['date'], errors='coerce').dt.month
     monthly = df_reg.groupby('month').size().reset_index(name='count')
@@ -921,17 +908,18 @@ if 'date' in df_reg.columns:
     plt.tight_layout()
     plt.show()
 
-# =============================================================================
-# 7. UNSUPERVISED LEARNING — CLUSTERING
-# =============================================================================
-# Three algorithms compared to find natural groupings in collision data.
-# No target variable is used — purely data-driven pattern discovery.
+# Unsupervised Learning
+
+# Here, I have compared three algorithms to find natural groupings within the dataset.
+# For this, I haven't used a target variable. This means that the results are purely data-driven.
 #
-# Algorithms:
+# The alrogithms that I have used are as follows:
+
 #   KMeans          — partition-based, finds spherical clusters
-#   DBSCAN          — density-based, detects noise/outliers
+#   DBSCAN          — density-based, detects outliers
 #   Agglomerative   — hierarchical, no assumption on cluster shape
-#
+
+
 # Responsible AI: clustering results are profiled and interpreted to provide
 # actionable road safety insights rather than opaque groupings.
 
@@ -959,9 +947,7 @@ X_cluster = scaler_unsup.fit_transform(cluster_df)
 print(f"Clustering dataset: {X_cluster.shape[0]} collisions, "
       f"{X_cluster.shape[1]} features")
 
-# -----------------------------------------------------------------------
-# 7.1 Elbow method + Silhouette scores to determine optimal k
-# -----------------------------------------------------------------------
+# The Elbow method + Silhouete scores to determine the optimal k value.
 inertias, sil_scores = [], []
 k_range = range(2, 11)
 
@@ -992,9 +978,7 @@ best_k = k_range[sil_scores.index(max(sil_scores))]
 print(f'Optimal k (silhouette): {best_k}  '
       f'(score: {max(sil_scores):.3f})')
 
-# -----------------------------------------------------------------------
-# 7.2 KMeans with optimal k
-# -----------------------------------------------------------------------
+# Kmeans (now using the optimal k value)
 kmeans_final = KMeans(n_clusters=best_k, random_state=42, n_init=10)
 cluster_labels = kmeans_final.fit_predict(X_cluster)
 cluster_df['cluster'] = cluster_labels
@@ -1044,12 +1028,10 @@ for c in sorted(cluster_df_orig['cluster'].unique()):
     print(f'  Cluster {c}: avg casualties={avg_cas:.2f}, '
           f'avg speed={avg_spd:.1f}mph, avg vehicles={avg_veh:.2f}')
 
-# -----------------------------------------------------------------------
-# 7.3 DBSCAN — density-based clustering
-# -----------------------------------------------------------------------
-# Responsible AI: DBSCAN makes no assumption about cluster shape.
-# Useful for identifying organic accident hotspot regions.
-# Noise points (label=-1) may represent rare/unusual collision types.
+# DBSCAN - Density Based Clustering
+
+# DBSCAN is useful for identifying any organic accident hotspot regions as it doesn't make assumptions.
+# Labels returning as -1 here are known as "noise points" and they represent unusual collision types or circumstances.
 
 print('\n--- DBSCAN ---')
 dbscan = DBSCAN(eps=1.2, min_samples=10)
@@ -1079,13 +1061,10 @@ ax.grid(True, linestyle='--', alpha=0.3)
 plt.tight_layout()
 plt.show()
 
-# -----------------------------------------------------------------------
-# 7.4 Agglomerative (Hierarchical) Clustering
-# -----------------------------------------------------------------------
-# Hierarchical clustering builds a tree of clusters (dendrogram concept).
-# Does not require specifying the number of clusters in advance (though we
-# supply best_k here for fair comparison with KMeans).
-# No assumption about cluster shape — complementary to KMeans.
+# Agglomerative - Heirarchical Clustering
+# Agglomerative clustering works heirarchically to build a tree of clusters using the dendrogram concept.
+# This method doesn't require me to specify the number of clusters in advance.
+# However, I have provided it with the best k value here (best_k) so that it will be a fari comparison to KMeans.
 
 print('\n--- Agglomerative Hierarchical Clustering ---')
 agg = AgglomerativeClustering(n_clusters=best_k, linkage='ward')
@@ -1107,9 +1086,7 @@ ax.grid(True, linestyle='--', alpha=0.3)
 plt.tight_layout()
 plt.show()
 
-# -----------------------------------------------------------------------
-# 7.5 Clustering algorithm comparison
-# -----------------------------------------------------------------------
+# Comparison of the clustering algorithms
 clustering_comparison = {
     'KMeans':         silhouette_score(X_cluster, cluster_labels),
     'Agglomerative':  agg_sil,
@@ -1125,18 +1102,27 @@ best_cluster_algo = max(clustering_comparison, key=clustering_comparison.get)
 print(f'\nBest clustering algorithm: {best_cluster_algo}')
 print('Higher silhouette score = better-defined, more separated clusters.')
 
-# =============================================================================
-# 8. PERFORMANCE EVALUATION & ANALYSIS
-# =============================================================================
-# Comprehensive evaluation across all tasks.
-# Responsible AI: misclassification analysis is performed to understand
-# where models fail — critical for safety-relevant predictions.
+# Performance Evaluation and Analysis
+# Here, I aim to provide a comprehensive evaluation of each part of the model.
+# A misclassification analysis is performed here to understadn whereabouts the models fail.
+# This is very important as the predictions that are being made relate to safety.
 
 print("\n" + "=" * 70)
 print("8. PERFORMANCE EVALUATION SUMMARY")
 print("=" * 70)
 
-# --- Classification summary table ---
+# Cross-task evaluation summary
+print("\nCross-Task Evaluation Summary:")
+summary = pd.DataFrame([
+    {'Task': 'A — Multiclass Severity',   'Best Model': best_mc_name,         'Metric': 'F1 Weighted', 'Score': round(mc_results[best_mc_name]['val_f1'], 3)},
+    {'Task': 'B — Urban/Rural Binary',    'Best Model': 'RF (GridSearchCV)',   'Metric': 'ROC-AUC',     'Score': round(auc_score, 3)},
+    {'Task': 'C — Junction Detail',       'Best Model': 'Random Forest',       'Metric': 'F1 Weighted', 'Score': round(f1_score(y_te_c, cat_models['Random Forest'].predict(X_te_c_s), average='weighted'), 3)},
+    {'Task': 'D — Police Attendance',     'Best Model': 'Random Forest',       'Metric': 'ROC-AUC',     'Score': round(auc_p, 3)},
+    {'Task': 'Regression — Casualties',   'Best Model': best_reg_name,         'Metric': 'R²',          'Score': round(r2_score(y_te_r, y_pred_reg), 3)},
+])
+print(summary.to_string(index=False))
+
+# Classification Summary table
 print("\nTask A — Multiclass Classification (collision_severity):")
 eval_rows = []
 for name, res in mc_results.items():
@@ -1171,7 +1157,7 @@ ax.grid(True, axis='y', linestyle='--', alpha=0.4)
 plt.tight_layout()
 plt.show()
 
-# --- Regression summary ---
+# Regression Summary
 print("\nRegression Model Comparison:")
 print(reg_eval_df.to_string(index=False))
 
@@ -1191,7 +1177,7 @@ ax.grid(True, axis='y', linestyle='--', alpha=0.4)
 plt.tight_layout()
 plt.show()
 
-# --- Clustering summary ---
+# Clustering Summary
 print(f'\nClustering Evaluation:')
 print(f'  KMeans (k={best_k}): '
       f'Silhouette={silhouette_score(X_cluster, cluster_labels):.3f}, '
@@ -1201,7 +1187,7 @@ if n_clusters_db > 1:
     print(f'  DBSCAN: Silhouette={db_sil:.3f}, Noise={n_noise}')
 print('  Interpretation: silhouette > 0.5 = strong cluster separation')
 
-# --- Misclassification analysis (Responsible AI) ---
+# Misclassification Analysis
 print('\nMisclassification Analysis (Task A — Best Model):')
 misclassified = X_test_mc.copy()
 misclassified['actual'] = y_test_mc.values
@@ -1219,20 +1205,16 @@ print('  Slight→Serious misclassifications are more dangerous than')
 print('  Serious→Slight, as they underestimate injury risk.')
 print('  Model should be validated by road safety experts before deployment.')
 
-# =============================================================================
-# 9. INNOVATION & BEYOND
-# =============================================================================
+# Innovation
 
 print("\n" + "=" * 70)
 print("9. INNOVATION & BEYOND")
 print("=" * 70)
 
-# =============================================================================
-# 9.1 PCA — DIMENSIONALITY REDUCTION
-# =============================================================================
-# PCA reduces high-dimensional feature space while preserving maximum variance.
-# Applied here to the full feature set before modelling as an alternative pipeline.
-# Benefits: removes correlated features, reduces noise, faster training.
+# PCA - Dimensionality Reduction
+# Here, PCA simplifies the dataset by reducing high-dimensional features.
+#This is applied to the full set of features before modelling, acting as an alternative pipeline.
+# This should result in faster training times as it removes correlated features.
 
 print("\n--- 9.1 PCA Dimensionality Reduction ---")
 
@@ -1276,7 +1258,7 @@ print(f'Components needed to explain 95% variance: {n_components_95}')
 print(f'Original features: {len(multiclass_features)} → '
       f'reduced to {n_components_95} components')
 
-# Compare RF performance with and without PCA
+# Comparing the performance of RF both with and without PCA
 pca_reduced = PCA(n_components=n_components_95, random_state=42)
 X_pca_red = pca_reduced.fit_transform(X_pca_scaled)
 
@@ -1293,12 +1275,9 @@ print(f'\nRF with PCA ({n_components_95} components): F1={f1_pca:.3f}')
 print(f'RF without PCA ({len(multiclass_features)} features): F1={f1_orig:.3f}')
 print('PCA trades a small accuracy reduction for faster training and less overfitting.')
 
-# =============================================================================
-# 9.2 GEOSPATIAL VISUALISATION — COLLISION HOTSPOT MAP
-# =============================================================================
-# Interactive map using Plotly showing collision locations in Sheffield.
-# Colour-coded by collision severity for immediate visual insight.
-# This supports road safety planning by identifying high-risk zones.
+# Geospatial Visualisation - A map of the collision hotspots.
+# Here, we can see an interactive map of the collision locations in Sheffield.
+# Furthermore, the map is colour-coordinated by severity so that the reader can quickly interpret the results.
 
 print("\n--- 9.2 Geospatial Collision Hotspot Analysis ---")
 
@@ -1309,14 +1288,14 @@ geo_cols = ['latitude', 'longitude', 'collision_severity',
 geo_available = [c for c in geo_cols if c in geo_df.columns]
 geo_df = geo_df[geo_available].dropna()
 
-# Filter to valid Sheffield coordinates
+# Filtering to only valid Sheffield coordinates
 geo_df = geo_df[
     (geo_df['latitude'].between(53.2, 53.6)) &
     (geo_df['longitude'].between(-1.8, -1.2))
 ]
 
 if len(geo_df) > 0:
-    # Static geospatial scatter (seaborn)
+    # Static geospatial scatter (using seaborn)
     fig, ax = plt.subplots(figsize=(10, 8))
 
     if 'collision_severity' in geo_df.columns:
@@ -1375,12 +1354,10 @@ if len(geo_df) > 0:
 else:
     print("  No valid geospatial data found — check latitude/longitude columns.")
 
-# =============================================================================
-# 9.3 EXPLAINABLE AI — DETAILED FEATURE IMPORTANCE ANALYSIS
-# =============================================================================
-# Extended feature importance analysis with contextual interpretation.
-# Responsible AI: transparency about which features drive predictions
-# enables road safety stakeholders to trust and act on model outputs.
+# Explainable AI - Detailed Feature Importance Analysis.
+
+# This shows extended feature importance analysis with added contextual interpretation.
+# This also demonstrates responsible AI which enables road safety stakeholders to trust the model outputs and therefore, potentially act on them.
 
 print("\n--- 9.3 Explainable AI — Feature Importance Analysis ---")
 
@@ -1416,9 +1393,7 @@ if hasattr(best_mc, 'feature_importances_'):
     print('  Speed limit is consistently among the top predictors,')
     print('  suggesting targeted speed management could reduce severity.')
 
-# =============================================================================
-# 9.4 CORRELATION WITH ENGINEERED FEATURES
-# =============================================================================
+# Correlation with engineered features.
 
 print("\n--- 9.4 Engineered Feature Correlation Analysis ---")
 
@@ -1435,9 +1410,9 @@ if len(available_eng) > 1:
     plt.tight_layout()
     plt.show()
 
-# =============================================================================
-# 10. FINAL INSIGHTS & CONCLUSIONS
-# =============================================================================
+# Final, overall insights and conclusion.
+# This is for the model on the whole as well as my findings from the results.
+# I will talk more about these within my presentation if I have the time. 
 
 print("\n" + "=" * 70)
 print("10. FINAL INSIGHTS & CONCLUSIONS — SHEFFIELD ROAD COLLISIONS")
@@ -1489,3 +1464,22 @@ RESPONSIBLE AI:
 print("=" * 70)
 print("Analysis complete. All outputs saved/displayed above.")
 print("=" * 70)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import plot_model from keras.utils
+
+plot_model(model, to_file'model_plot.png', show_shapes=True, show_layer_names=True)

@@ -22,6 +22,6 @@ Secondly, I also had to ensure that the urban_or_rural_area was a binary value f
 
 The image displaying the results of the test, along with the file that I conducted the test within is in the "Testing" file. The results showed that the number 1,2 and 3 were used within the column. Therefore, this is not suitable for binary classification and shoudld be multiclass classification instead. This is something that I initially missed as the dataset was very difficult to read.
 
-However, for this type of data (whether the accident occured on a rural road or an urban road), the data SHOULD be binary. The third classification should not be there. Therefore, I chose to go back and remove these during the daa pre-processing stages.
+However, for this type of data (whether the accident occured on a rural road or an urban road), the data SHOULD be binary. The third classification should not be there. Therefore, I chose to go back and remove these during the data pre-processing stages.
 
 

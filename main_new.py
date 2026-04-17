@@ -5,8 +5,6 @@
 #import warnings
 #warnings.filterwarnings('ignore')
 
-print("SCRIPT RUNNING")
-
 # This is my own function that I have created. This allows me to easily enter a blank line wherever I would like one.
 def breakLine():
     print("")
@@ -44,20 +42,26 @@ from sklearn.metrics import (
     mean_absolute_error, mean_squared_error, r2_score,
     roc_auc_score, roc_curve
 )
-import plotly.express as px
-print("Before imports")
 
-import matplotlib.pyplot as plt
-print("matplotlib OK")
 
-import pandas as pd
-print("pandas OK")
+# ============================== Imports that I used to test whilst the model was being developed and I ran into some errors. I will remove these before the final version is submitted =========================
 
-import seaborn as sbn
-print("seaborn OK")
 
-from termcolor import colored
-print("termcolor OK")
+# import plotly.express as px
+# print("Before imports")
+
+# import matplotlib.pyplot as plt
+# print("matplotlib OK")
+
+# import pandas as pd
+# print("pandas OK")
+
+# import seaborn as sbn
+# print("seaborn OK")
+
+# from termcolor import colored
+# print("termcolor OK")
+
 
 # ====================================================================      Data Preprocessing      ======================================================
 # Beginning the process of pre-processing the dataset.
@@ -65,7 +69,7 @@ print("termcolor OK")
 # Loading in the raw Sheffield-specific collision dataset.
 breakLine()
 print("=" * 70) # Printing "=" 70 times. I will do this throughout the model so that I can see whereabouts the different sections are, upon runtime.
-print("SHEFFIELD ROAD COLLISION ANALYSIS — Loading Data")
+print("SHEFFIELD ROAD COLLISION ANALYSIS MODEL")
 print("=" * 70)
 breakLine()
 sheffield_dataframe = pd.read_csv('Collision Data - Sheffield ONLY.csv') # Loading in the raw (initial) dataset.
@@ -84,9 +88,9 @@ print("Data types:")
 breakLine()
 print(sheffield_dataframe.dtypes)
 breakLine()
-print(f"Total columns: {len(sheffield_dataframe.columns)}")
+print("Total columns:" ,{len(sheffield_dataframe.columns)})
 breakLine()
-print(f"Total records: {len(sheffield_dataframe)}")
+print("Total records:" ,{len(sheffield_dataframe)})
 breakLine()
 
 # =================================================================================================================
@@ -103,20 +107,35 @@ breakLine()
 # Imputation decisions are documented with justifications to ensure
 # transparency and reproducibility. Dropping rows was avoided to
 # preserve the full dataset for imbalanced class learning.
-
-print("\n" + "=" * 70)
-print("3. DATA PREPROCESSING")
+breakLine()
+print("=" * 70) # Using the same process as earlier. This time, to mark the beginning of the data preprocessing section.
+print("DATA PREPROCESSING")
 print("=" * 70)
 breakLine()
-# Initial Search for missing values across all of the columns within the dataset.
-print(("Columns containing missing values (initial scan):", '31'))
+# Performing an initial Search for missing values across all of the columns within the dataset.
+# For this, I have created a reusable function that I can use throughout the model wherever I may need to check for missing values.
 
-missing_cols = [col for col in sheffield_dataframe.columns
-                if sheffield_dataframe[col].isnull().any()]
-for col in missing_cols:
-    count = sheffield_dataframe[col].isnull().sum()
-    pct = (count / len(sheffield_dataframe)) * 100
-    print(f"  {col:<45} missing: {count:>5}  ({pct:.1f}%)")
+def missing_summary(df, sort=True):
+    summary = (
+        df.isnull().sum()
+        .loc[lambda x: x > 0]
+        .to_frame('Missing Count')
+    )
+    
+    # This shows the percentage of missing values within each column that contains them. It also shows an exact count of the missing values.
+    summary['Percentage (%)'] = (summary['Missing Count'] / len(df)) * 100 # It provides this in an easy to read format. This is really important for me to understadn the extent of the missing values easily and quickly.
+    
+    if sort:
+        summary = summary.sort_values(by='Missing Count', ascending=False)
+    
+    print("Columns with missing values: " , len(summary))
+    breakLine()
+    print(summary)
+    
+    return summary
+
+# I then run the function above on the initial dataset.
+missing_df = missing_summary(sheffield_dataframe)
 
 # Loading the updated dataset that has been initially processed
 sheffield_dataframe_updated = pd.read_csv('Sheffield Collision Data Updated.csv')
@@ -127,28 +146,34 @@ sheffield_dataframe_updated = pd.read_csv('Sheffield Collision Data Updated.csv'
 # Therefore, I can safely impute all NA values within the local_authority_highway_current column with this value.
 # This ensures that there isn't any bias introduced into the dataset by filling the NA values with incorrect or inaccurate values.
 
-print("\n--- Cleaning: local_authority_highway_current ---")
+breakLine()
+print("Cleaning: local_authority_highway_current")
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 sbn.histplot(sheffield_dataframe_updated['local_authority_highway_current'],
              ax=axes[0])
-axes[0].set_title('local_authority_highway_current — BEFORE')
+axes[0].set_title('local_authority_highway_current — BEFORE')   # The section above displays a histogram of the local_authority_highway_current column before the imputation.
 
 na_before = sheffield_dataframe_updated['local_authority_highway_current'].isna().sum()
-print(f"  N/A before: {na_before}")
+print(" N/A before: ", na_before)  # This value indicates the number of N/A values within the loal_authority_highway_current column before the imputation.
 
 sheffield_dataframe_updated['local_authority_highway_current'] = (
     sheffield_dataframe_updated['local_authority_highway_current']
-    .fillna('E08000019')
+    .fillna('E08000019')    # Here, I am filling the N/A values with E08000019, as this is the only value that is present within the column.
+    # This means that I am not introducing any bias into the dataset by filling the N/A values with an inaccurate value as there are no other values within the column to choose from.
 )
 
-sbn.histplot(sheffield_dataframe_updated['local_authority_highway_current'],
+sbn.histplot(sheffield_dataframe_updated['local_authority_highway_current'],    # This Histogram shows the effects of the cleaning.
              ax=axes[1])
 axes[1].set_title('local_authority_highway_current — AFTER')
 plt.tight_layout()
 plt.show()
 
+# Both of the Histograms are included within the same image, and are available in the Results folder, as a file titled "HISTOGRAM -local_highway_before_after.png".
+
 na_after = sheffield_dataframe_updated['local_authority_highway_current'].isna().sum()
-print(f"  N/A after:  {na_after}")
+print(" N/A after: ", na_after) # This value shows the number of N/A values in the column after the imputation. This is 0.
+# An image of the before and after output for this section is within the results folder as "CLEANING_RESULTS_local_highway.png"
+
 
 # Latitude & Longitude - Numerical
 
@@ -159,39 +184,102 @@ print(f"  N/A after:  {na_after}")
 # I have also noticed some outliers, I have purposely kept these as they are.
 # These outliers are still accurate representations of real-world collisions, regardless of the location.
 
-print("\n--- Cleaning: latitude & longitude ---")
-fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+breakLine()
+print("Cleaning: latitude & longitude")
+fig, axes = plt.subplots(2, 2, figsize=(10, 8)) # This creates a two by two grid which I will then fill with the before and after histograms for longitude and latitude.
 
 sbn.histplot(sheffield_dataframe_updated['latitude'], bins=50, ax=axes[0, 0])
-axes[0, 0].set_title('Latitude — BEFORE')
+axes[0, 0].set_title('Latitude — BEFORE') # Displaying the histogram for latitude before the data imputation.
+
 sbn.histplot(sheffield_dataframe_updated['longitude'], bins=50, ax=axes[0, 1])
-axes[0, 1].set_title('Longitude — BEFORE')
+axes[0, 1].set_title('Longitude — BEFORE')  # Displaying the histogram for longitude before the data imputation.
 
 for col in ['latitude', 'longitude']:
     mean_val = sheffield_dataframe_updated[col].mean()
-    sheffield_dataframe_updated[col] = sheffield_dataframe_updated[col].fillna(mean_val)
-    print(f"  {col}: filled with mean={mean_val:.4f}, "
-          f"remaining NAs={sheffield_dataframe_updated[col].isna().sum()}")
+    sheffield_dataframe_updated[col] = sheffield_dataframe_updated[col].fillna(mean_val)    # Filling all of the N/A values present in both of the columns with the mean values for each.
+    print(f"  {col}: filled with mean = { mean_val:.4f}."
+          f"\n      Remaining NAs = {sheffield_dataframe_updated[col].isna().sum()}") # Calculating the number of N/A values that are present after the imputation. This is 0 for both of the columns.
 
 sbn.histplot(sheffield_dataframe_updated['latitude'], bins=50, ax=axes[1, 0])
-axes[1, 0].set_title('Latitude — AFTER')
+axes[1, 0].set_title('Latitude — AFTER') # Displaying the histogram for the latitude column after the data imputation.
+
 sbn.histplot(sheffield_dataframe_updated['longitude'], bins=50, ax=axes[1, 1])
-axes[1, 1].set_title('Longitude — AFTER')
-plt.suptitle('Geographical Features — Before & After Imputation', fontsize=13)
+axes[1, 1].set_title('Longitude — AFTER') # Displaying the histogram for the longitude column after the data imputation.
+
+plt.suptitle('Geographical Features — Before & After Imputation', fontsize=13) # Setting the title of the image of the graphs.
 plt.tight_layout()
 plt.show()
+
+# urban_or_rural_area - Converting to binary to remove unnecessary complexity (resulting in urban = 1 and rural = 0)
+breakLine()
+print("Cleaning: urban_or_rural_area")
+breakLine()
+print("Before:")
+counts = sheffield_dataframe_updated['urban_or_rural_area'].value_counts()
+percentages = sheffield_dataframe_updated['urban_or_rural_area'].value_counts(normalize=True) * 100
+for val in counts.index:
+    print(f"{val}: {counts[val]} ({percentages[val]:.1f}%)")    # Counting the number of 3's that I initially have within the dataset.
+# The percentage of each value within the column is also shown next to the count. This is important as it allows me to understand the extent of the 3's within the dataset, and therefore, the extent of the inaccuracy that they would introduce if I were to keep them within the dataset.
+
+
+df = sheffield_dataframe_updated[
+    sheffield_dataframe_updated['urban_or_rural_area'].isin([1, 2]) # Removing any value that isn't 1 or 2.
+].copy() # I initially made a mistake here that I only noticed whilst going back through the code.
+# I had only disregarded the 3's in the dataset. This meant that I had kept -1 values. This meant it would be inaccurate as these values don't show either urban or rural areas.
+# They are likely to signify unrecorded values. 
+# I have now removed these as well. This will ensure that the predictions made by the model will be as accurate as possible.
+
+
+breakLine()
+print("After removing 3s and -1s:")
+counts = df['urban_or_rural_area'].value_counts()
+percentages = df['urban_or_rural_area'].value_counts(normalize=True) * 100
+for val in counts.index:
+    print(f"{val}: {counts[val]} ({percentages[val]:.1f}%)") # Checking the count after the removal, ensuring that all of the 3's have been removed.
+# Once again, showing the percentage next to the count. This time, for once the removal has taken place.
+
+df['urban_or_rural_area'] = df['urban_or_rural_area'].map({
+    1: 1,   # Mapping the urban areas to 1.
+    2: 0    # Mapping the rural areas to 0.
+})
+
+breakLine()
+print("After binary conversion:")
+counts = df['urban_or_rural_area'].value_counts()
+percentages = df['urban_or_rural_area'].value_counts(normalize=True) * 100
+for val in counts.index:
+    label = "Urban" if val == 1 else "Rural"
+    print(f"{label} ({val}): {counts[val]} ({percentages[val]:.1f}%)") # Performing a final count of the values, ensuring the areas are mapped to 1 and 0 as intended.
 
 # Easting & Northing — Numerical
 
 # Here, I have done the same as I have above for Latitude and Longitude. 
 # I have filled the columns with the mean values.
+breakLine()
+print("Cleaning: easting & northing")
+breakLine()
 
-print("\n--- Cleaning: easting & northing ---")
+na_before = sheffield_dataframe_updated['location_easting_osgr'].isna().sum()   # Calculating the number of N/A values that are present in the location_easting_osgr column before the imputation.
+na_before = sheffield_dataframe_updated['location_northing_osgr'].isna().sum()  # Calculating the number of N/A values that are present in the location_northing_osgr column before the imputation.
+# Both of the values calculated above are printed below. 
+print(" N/A Count before: location_easting_osgr = ", na_before)
+print(" N/A Count before: location_northing_osgr = ", na_before)
+breakLine()
+
 for col in ['location_easting_osgr', 'location_northing_osgr']:
-    mean_val = sheffield_dataframe_updated[col].mean()
-    na_count = sheffield_dataframe_updated[col].isna().sum()
-    sheffield_dataframe_updated[col] = sheffield_dataframe_updated[col].fillna(mean_val)
-    print(f"  {col}: filled {na_count} NAs with mean={mean_val:.1f}")
+    mean_val = sheffield_dataframe_updated[col].mean() # Calculating the mean value for each of the columns.
+    na_count = sheffield_dataframe_updated[col].isna().sum()    # Calculating the number of N/A values that are present in each of the columns.
+    sheffield_dataframe_updated[col] = sheffield_dataframe_updated[col].fillna(mean_val)    # Filling the N/A values with the mean value for each of the columns.
+    print(f"  {col}: filled {na_count} NAs with mean = {mean_val:.1f}") # This shows the number of N/A values that were filled for each of the columns, as well as the mean value that they were filled with.
+
+na_after = sheffield_dataframe_updated['location_easting_osgr'].isna().sum()    # Calculating the number of N/A values that are present in the location_easting_osgr column after the imputation.
+na_after = sheffield_dataframe_updated['location_northing_osgr'].isna().sum()   # Calculating the number of N/A values that are present in the location_northing_osgr column after the imputation.
+# Both of the values calculated above are printed below.
+breakLine()
+print(" N/A Count after: location_easting_osgr = ", na_after)
+print(" N/A Count after: location_northing_osgr = ", na_after)
+breakLine()
+# This section was actually relatively clean, with only a total of 130 N/A values across both of the columns.
 
 # collision_adjusted_severity_serious & collision_severity_slight — Binary
 
@@ -254,6 +342,24 @@ plt.show()
 # There shouldn't be any N/A values within the dataset at this point.
 
 fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+
+df = sheffield_dataframe_updated.copy()
+
+# Recreate engineered features
+df['is_weekend'] = df['day_of_week'].isin([6, 7]).astype(int)
+df['high_speed_zone'] = (df['speed_limit'] >= 50).astype(int)
+
+# Clean target (remove invalid class)
+df = df[df['urban_or_rural_area'].isin([1, 2])]
+
+# Convert to binary
+df['urban_or_rural_area'] = df['urban_or_rural_area'].map({
+    1: 1,
+    2: 0
+})
+
+# Safety check
+print("Final target values:", sorted(df['urban_or_rural_area'].unique()))
 
 
 
@@ -659,6 +765,43 @@ print("\n--- TASK B: Binary Classification (urban_or_rural_area) ---")
 binary_features = ['speed_limit', 'road_type', 'first_road_class',
                    'weather_conditions', 'light_conditions',
                    'is_weekend', 'high_speed_zone']
+
+df = sheffield_dataframe_updated.copy()
+
+df = df[df['urban_or_rural_area'].isin([1, 2])]
+
+df['urban_or_rural_area'] = df['urban_or_rural_area'].map({
+    1: 1,
+    2: 0
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 bin_df = df[binary_features + ['urban_or_rural_area']].dropna().copy()
 

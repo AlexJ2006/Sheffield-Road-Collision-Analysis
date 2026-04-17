@@ -174,7 +174,6 @@ na_after = sheffield_dataframe_updated['local_authority_highway_current'].isna()
 print(" N/A after: ", na_after) # This value shows the number of N/A values in the column after the imputation. This is 0.
 # An image of the before and after output for this section is within the results folder as "CLEANING_RESULTS_local_highway.png"
 
-
 # Latitude & Longitude - Numerical
 
 # Here, I have filled the columns with the mean values.
@@ -221,14 +220,12 @@ for val in counts.index:
     print(f"{val}: {counts[val]} ({percentages[val]:.1f}%)")    # Counting the number of 3's that I initially have within the dataset.
 # The percentage of each value within the column is also shown next to the count. This is important as it allows me to understand the extent of the 3's within the dataset, and therefore, the extent of the inaccuracy that they would introduce if I were to keep them within the dataset.
 
-
 df = sheffield_dataframe_updated[
     sheffield_dataframe_updated['urban_or_rural_area'].isin([1, 2]) # Removing any value that isn't 1 or 2.
 ].copy() # I initially made a mistake here that I only noticed whilst going back through the code.
 # I had only disregarded the 3's in the dataset. This meant that I had kept -1 values. This meant it would be inaccurate as these values don't show either urban or rural areas.
 # They are likely to signify unrecorded values. 
 # I have now removed these as well. This will ensure that the predictions made by the model will be as accurate as possible.
-
 
 breakLine()
 print("After removing 3s and -1s:")
@@ -284,26 +281,44 @@ breakLine()
 # collision_adjusted_severity_serious & collision_severity_slight — Binary
 
 # Here, I have used mode imputation as it is the most realistic for binary values.
+# For the section below, I have repeated the same logic that is present above.
+breakLine()
+print("Cleaning: collision_adjusted_severity_serious & collision_adjusted_severity_slight")
+breakLine()
 
-print("\n--- Cleaning: collision_adjusted_severity_serious & _slight ---")
-for col in ['collision_adjusted_severity_serious',
+na_before = sheffield_dataframe_updated['collision_adjusted_severity_serious'].isna().sum()   # Calculating the number of N/A values that are present in the collision_adjusted_severity_serious column before the imputation.
+na_before = sheffield_dataframe_updated['collision_adjusted_severity_slight'].isna().sum()  # Calculating the number of N/A values that are present in the collision_adjusted_severity_slight column before the imputation.
+# Both of the values calculated above are printed below. 
+print(" N/A Count before: collision_adjusted_severity_serious = ", na_before)
+print(" N/A Count before: collision_adjusted_severity_slight = ", na_before)
+breakLine()
+
+for col in ['collision_adjusted_severity_serious', # Here, I am filling the N/A values within both of the columns with the mode value for each of the columns. This is because both of the columns are binary, and therefore, the mode value is the most realistic value to fill the N/A values with.
             'collision_adjusted_severity_slight']:
     mode_val = sheffield_dataframe_updated[col].mode()[0]
     na_count = sheffield_dataframe_updated[col].isna().sum()
     sheffield_dataframe_updated[col] = (
         sheffield_dataframe_updated[col].fillna(mode_val)
     )
-    print(f"  {col}: filled {na_count} NAs with mode={mode_val}")
+    print(f"  {col}: filled {na_count} NAs with mode = {mode_val}")
 
-# Map binary integer flags to readable labels
-sheffield_dataframe_updated["collision_adjusted_severity_serious"] = (
+# Mapping the binary integer flags to readable labels
+sheffield_dataframe_updated["collision_adjusted_severity_serious"] = ( # Here, I am mapping the values within the collision_adjusted_severity_serious column to "Serious" and "Not Serious". This is just to make the dataset easier to understand and work with.
     sheffield_dataframe_updated["collision_adjusted_severity_serious"]
     .astype(int).map({0: "Not serious", 1: "Serious"})
 )
-sheffield_dataframe_updated["collision_adjusted_severity_slight"] = (
+sheffield_dataframe_updated["collision_adjusted_severity_slight"] = ( # Here, I am mapping the values within the collision_adjusted_severity_slight column to "Slight" and "Not Slight".
     sheffield_dataframe_updated["collision_adjusted_severity_slight"]
     .astype(int).map({0: "Not slight", 1: "Slight"})
 )
+
+na_after = sheffield_dataframe_updated['collision_adjusted_severity_serious'].isna().sum()   # Calculating the number of N/A values that are present in the collision_adjusted_severity_serious column after the imputation.
+na_after = sheffield_dataframe_updated['collision_adjusted_severity_slight'].isna().sum()  # Calculating the number of N/A values that are present in the collision_adjusted_severity_slight column after the imputation.
+# Both of the values calculated above are printed below.
+breakLine()
+print(" N/A Count after: collision_adjusted_severity_serious = ", na_after)
+print(" N/A Count after: collision_adjusted_severity_slight = ", na_after)
+breakLine()
 
 # IQR-based outlier detection
 # This is used for key numerical features to identify any potential issues with the quality of the data and understand the distribution of the values.
@@ -312,34 +327,59 @@ sheffield_dataframe_updated["collision_adjusted_severity_slight"] = (
 # Similar to my previous point in the latitude and longitude section, these outliers are important as they are still accurate representations of real-world events.
 # Therefore, removing them would introduce selection bias into the dataset and reduce the accuracy of the model.
 
-print("\n--- Outlier Detection (IQR method) ---")
-outlier_cols = ['number_of_casualties', 'number_of_vehicles', 'speed_limit']
+breakLine()
+print("Outlier Detection (Using the IQR method): ")
+outlier_cols = ['number_of_casualties', 'number_of_vehicles', 'speed_limit'] # These are the columns that I have chosen to check for outliers within. I have chosen these columns as they are key numerical features that are likely to have a significant impact on the predictions made by the model if the values within them are inaccurate.
+# My aim here, once again is to reduce/remove any inaccuracies within the dataset, without removing any accurate representations of real-world events. Therefore, I have chosen to flag and report any outliers rather than remove them, thus keeping the data as realistic as possible.
 
 fig, axes = plt.subplots(1, len(outlier_cols), figsize=(16, 5))
 for i, col in enumerate(outlier_cols):
     if col in sheffield_dataframe_updated.columns:
         col_data = sheffield_dataframe_updated[col].dropna()
-        Q1 = col_data.quantile(0.25)
-        Q3 = col_data.quantile(0.75)
-        IQR = Q3 - Q1
-        lower = Q1 - 1.5 * IQR
-        upper = Q3 + 1.5 * IQR
-        n_outliers = ((col_data < lower) | (col_data > upper)).sum()
-        print(f"  {col}: Q1={Q1:.1f}, Q3={Q3:.1f}, "
-              f"bounds=[{lower:.1f}, {upper:.1f}], outliers={n_outliers} "
-              f"({100*n_outliers/len(col_data):.1f}%) — RETAINED")
+        Q1 = col_data.quantile(0.25) # Calculating the first quartile (Q1) and the third quartile (Q3) for each of the columns. 
+        Q3 = col_data.quantile(0.75) # These values are used to calculate the interquartile range (IQR) which is then used to identify outliers.
+        IQR = Q3 - Q1 # Calculating the IQR (Interquartile Range) for each of the columns.
+        lower = Q1 - 1.5 * IQR # Q1 is the lower QR
+        upper = Q3 + 1.5 * IQR # Q3 is the upper QR
+        n_outliers = ((col_data < lower) | (col_data > upper)).sum() # Counting the number of outliers that are present in each of the columns based on the IQR that I calculated above.
+        breakLine()
+
+        print(f"{col}: Q1 = {Q1:.1f}")
+        print(f"Q3 = {Q3:.1f}")
+        breakLine()
+        print(f"bounds = [ {lower:.1f}, {upper:.1f} ], outliers = {n_outliers} ")
+        print(f"({100*n_outliers/len(col_data):.1f}%) — RETAINED")
+
         sbn.boxplot(y=col_data, ax=axes[i], color='skyblue',
                     flierprops=dict(marker='o', markerfacecolor=(0.7, 0.2, 0.4),
                                     markersize=4, alpha=0.6))
         axes[i].set_title(f'{col}\n(outliers shown in pink)')
+        breakLine()
 
-plt.suptitle('Outlier Analysis — Key Numerical Features', fontsize=13)
+plt.suptitle('Outlier Analysis — Key Numerical Features', fontsize=13) # Titling the image of the boxplots hilighting the outliers.
 plt.tight_layout()
 plt.show()
+
 
 # Final check for any remaining missing values after cleaning
 # This is just to ensure that any NA values have been handled correctly.
 # There shouldn't be any N/A values within the dataset at this point.
+
+
+breakLine()
+print("=" * 70) # Using the same process as earlier. This time, to mark the beginning of the data preprocessing section.
+breakLine()
+print("FINAL N/A COUNT ACROSS THE WHOLE DATASET ")
+breakLine()
+remaining_nulls = sheffield_dataframe_updated.isnull().sum() # Calculating the number of N/A values that are present in each of the columns after the cleaning process.
+print(remaining_nulls)
+breakLine()
+total_nulls = remaining_nulls.sum()
+print("total: ", total_nulls)
+breakLine()
+print("=" * 70)
+breakLine()
+
 
 fig, axes = plt.subplots(2, 3, figsize=(18, 10))
 

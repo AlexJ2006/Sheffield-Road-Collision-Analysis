@@ -54,3 +54,74 @@ One of the things that I was preoccupied with during this process was how low th
 
 One of the main reasons behind cleaning the column in this way and mapping the new values to 1 and 0 was for the binary classification. Binary Classification wouldn't have worked on this data if I had kept it as it previously was (as they weren't binary values). I will mention this further on in this file.
 
+* location_northing_osgr & location_easting_osgr
+
+For the location_easting_osgr and location_northing_osgr columns, I imputed the N/A values with the mean.
+
+![Cleaning Results and mean value or easting & northing locations](Results/location_northing_easting_osgr/CLEANING_RESULTS-easting_northing.png)
+
+Results & Justification:
+
+As I emphasised within the comments during this section of the code file, these two columns were actually near-perfect to begin with. Neither of them required much cleaning with only 65 rows each (a total of 130 over both columns), presenting as N/A. Over 7,933 rows in the location_easting_osgr, having just 65 N/A values meant that only 0.8% of the column needed replacing with the mean. This is the same for the location_easting_osgr column too.
+
+I believe that mean imputation was the right choice to fill thesee N/A values as it reduces variance in the dataset. By this, I mean that it keeps the data within the same grographical area by using the mean and avoids accidentally creating any outliers. The data that I am imputing will follow the trend that has already been set by the other data points. I am avoiding creating any unnecessary inaccuracies here as mean imputation allows the new data to stay within the safe boundaries that currently exist within the dataset.
+
+Furthermore, given the fact that I was only imputing 0.8% of each column, if I was to have imputed these values inaccurarately, it is unlikely to actually have much of an effect on the accuracy of the final model itself.
+
+* collision_adjusted_severity_serious & collision_adjusted_severity_slight
+
+For this section, I have tried to use the mode imputation again. I also ran an initial N/A value count and a final N/A value count. I used the same logic as I did for the section above.
+
+Evidence of the output can be found in the image below:
+
+![Cleaning Results for Collision Severity Serious & Slight](Results/collision_adjusted_severity_serious_&_slight/CLEANING_RESULTS-serious_&_severe.png)
+
+Results & Justification:
+
+Once again, as for the section above, the columns showed that they had very few N/A values. However, when using the mode for these columns, the mode was found to be 0 for each as the data is binary data and 0 is evidently the most common value in this instance.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+* Outlier Detection (IQR Method)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+* Final Null Value Count
+
+At the end of the preprocessing section, I performed another null value count. This came to 0 over all of the 44 columns within the dataset. The Image of this is below. This image depicts exactly what is displayed to the user on runtime at the end of this section.
+
+![Final N/A Value Count](Results/Final_NA_Value_Count/Final_NA_Value_Count.png)
+

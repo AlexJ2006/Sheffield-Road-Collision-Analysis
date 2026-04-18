@@ -118,10 +118,93 @@ Once again, as for the section above, the columns showed that they had very few 
 
 
 
-
 * Final Null Value Count
 
 At the end of the preprocessing section, I performed another null value count. This came to 0 over all of the 44 columns within the dataset. The Image of this is below. This image depicts exactly what is displayed to the user on runtime at the end of this section.
 
 ![Final N/A Value Count](Results/Final_NA_Value_Count/Final_NA_Value_Count.png)
+
+* Final Preprocessing Result Charts (Graphs)
+
+Below is an image containing the results of the final preprocessing checks.
+
+![Final Preprocessing Results](Results/Final_preprocessing_Results_Graphs/Final_preprocessing_results_graphs.png)
+
+The graph on the top left depicts the final distribution for the Serious and Not Serious collisions within the data set. From the graph, we can see that there is a significantly larger number of Not Serious collisions than Serious collisions. This means that the model is likely to predict a collision to be Not Serious. However, in the real world, not serious collisions are more frequent. Therefore, the model should still be accurate.
+
+Moving to the top middle image, this shows the geographical clustering of the accidents. It is clear from this image that the majority of these are tightly packed. This again makes sense as it depicts the collisions within the Sheffield Urban area, which only spans a certain distance. Therefore, the data depicted here is likely to be accurate. It is aslo consistent which is a positive.
+
+The top right graph shows a KDE Plot for the latitudinal distribution. The result is that there is a very sharp peak at the top of the graph, this shows that most of the collisions occur within a narow latitudinal range. This is also a good thing for me to see as it once again reinforces that the data is accurately within the specific region of the city of Sheffield. 
+
+The bottom left image shows a KDE plot for the longitudinal distribution. This shows the same as the latitudinal graph that I have written about above. However, this image shows there is a wider spread of data longitudinally than there was latitudinally.
+
+The bottom middle graph shows the same type of clustering as the latitude/longitude graph above it. However, using the eating/northing data. There are a few clear outliers within this image. This confirms that the coordinate transformation between the latitude and longitude data and the easting and northing data is consistent as we see very similar results within both graphs.
+
+Finally, the bottom right graph shows that one category dominates entirely within the column. This is accurate as the collisions recorded will be recorded through the authority based within the city of Sheffield. This was data that as I mentioned earlier at the start of the file, I imputed myself.
+
+# Feature Engineering
+
+* Adding the Engineered Features to the dataset
+
+The first task that I undertook was engineering my features. In order to do this, I needed to create new features using existing columns within the dataset.
+
+Once I had done this, I displayed to the user which new features would be added to the dataset. An image of the new features that I added is below. I will then explain where each of the features came from. I will also add some code snippets from where I created the new features from the existing features.
+
+![New Feature List](Results/Feature-Engineering-Results/New_Feature_List.png)
+
+The first new feature that I added was "is_weekend". This was very simple. I did this by taking the current "day_of_week" column and using the logic "if the integer is equal to 6 or 7, it belongs to this feature meaning it is a weekend". This meant that any day of the week that then wasn't taken into the new is_weekend feature was left as a normal weekday. This could then be represented within the graph which I will show later within the visualisation section of feature engineering.
+
+The second new feature that I added was "time_of_day". This was slightly more complicated. I already had a column that was called "time". This data within this column was presented in the format of a 24-hour clock. Therefore, all I needed to do was extrapolate the hour from the column (the first each piece of data), and then map it to either Night, Morning, Afternoon or Evening. I also defined "bins" for this section. These helped to place the correct time within the correct category (morning, afternoon etc)
+
+As I stated within the comments in my code, the bins were defined as 0-6 being Night (12am to 6am), 6-12 being morning (6am to 12pm), 12-18 being afternoon (12pm - 6pm) and finally, 18-24 being evening (6pm - midnight). 
+
+The Third new feature that I added was "risk_score". The aim of this was to calculate a total risk score that combined the number of vehicles involved in the collision with the number of casualties from the collision. It also aimed to give more weight to the number of casualties involved in the accident as they are a direct indicator or severity meaning the higher the number of casualties, the more severe the accident.
+
+The weighting was simple, I did the following:
+
+(number_of_vehicles x 0.4) + (number of casualties x 0.6)
+
+The Fourth new feature that I added was "casualties_per_vehicle". This was done by using another simple calculation. I will show this calculation below:
+
+(number_of_casualties) / (number_of_vehicles)
+
+This could then return an estimated number of casualties per vehicle. However, this figure is not guarenteed to be accurate 100% of the time and may vary depending on the circumstances of the accident.
+
+The Fifth new feature that I added was "speed_urban_interaction". This feature aimed to capture how speed limits may have different effects on the accidents within urban areas vs rural areas. This simply flagged the speed limit and linked it to either a rural or urban area.
+
+The Sixth new feature that I added was "high_speed_zone". Simply, this checks whether the "speed_limit" was > (greater than) 60. If it was, it is classed as a high speed zone. Collisions within a high speed zone are more likely to be serious collisions.
+
+The Seventh and final new feature that I added was "collision_age". This aimed to see whetehr there was a difference in the number of collisions in previous years comapred to nowadays. Theoretically, this could then tell me whether road safety has improved or not over the years. However, there are also other factors that come into play here. For example, there may be significantly more drivers on the roads than there has been before. This would mean that the road safety might well have improved but we may not be able to see this statistically represented here.
+
+
+* Feature Engineering - Distributions
+
+Once I had added all of my new features, I decided to display my findings on graphs, much like I did earlier for the final preprocessing results. The graphs are pictured below and I will now explain my findings.
+
+![Feature Engineering - Graphs](Results/Feature-Engineering-Results/Engineered_features_Visualisation.png)
+
+Beginning at the top left, it was found that the majority of crashed happened on a weekday with just over 5000 on a weekday and around 2500 occuring on the weekend. This seems likely to me as most people will be driving throughout the week and commuting. Furthermore, rush hours from monday-friday mean that there is a high density of road traffic at certain times. This is likely to lead to a lot of collisions. The majority of which are minor (as we saw earlier in the severity chart).
+
+The graph at the top middle of the image shows which time of day it was when the collisions occured. Once again, we can see that the charts somewhat confirm my beliefs as there are minimal accidents throughout the night and the majority happen in the afternoon between the hours of 12pm and 6pm (when the final rush hour of the day occurs). This is closely followed by the evening and then morning accidents trail slightly behind. I believe there could be a few different reasons behind the trends that we can see here.
+
+During the final rish hour of the day (usually between 5pm and 6:30pm), most people will be leaving work. There will be a high volume of traffic on the road and people will be tired after being at work all day. This could therefore lead to mistakes and evidently accidents. This could also explain why the accidents occuring in the evening section of the graph is so high. In the morning, this is likely to be slightly lower (and this is backed up by the visual evidence within the graph), as although there is a high volume of traffic on the road. People are usually going to work so they are unlikely to be as tired as when they are coming home and clearly much less likely to be involved in an accident.
+
+Moving to the top right of the image, we can see the risk score distribution. This once again confirms what we saw earlier with teh majority of the collisions being classed as "not serious", as the majoroity of the cases are between 1 and 2. This measn there weren't many vehicles involved and therefore there weren't many casualties.
+
+Moving to the bottom left graph, we can see that the number of casualties per vehicle is mostly towards the lower end of the scale with the majority being at 1 casualty per vehicle. This would lead me to beliee once again that the majority of the accidents that occur aren't serious.
+
+Moving the the bottom middle image, we can see that the majority of collisions occur at normal speed (any speed below 60mph). This also confirms my suspicions that the majority of accidents aren't serious. with over 7000 collisions occuring at a normal speed.
+
+Finally, moving to the bottom right image, we can see that the number of collisions has in fact reduced over the last 40 years. This is almost certainly due to the new road safety measures and modern technolgy within cars that actually prevent them from crashing. For example, asissted/automated driving. This could also be due to stricter driving tests making for a higher standard driving across the country. This was a very interesting and surprising result for me as I didn't believe this would be the case. This was something that I hilighted earlier.
+
+# Supervised Learning
+
+* Correlation Matrix (all features)
+
+* Confusion Matrix (MultiClass Severity)
+
+* Top 10 Featrure Importances - Gradient Boosting
+
+* Multiclass Model Comparison
+
 

@@ -2,9 +2,6 @@
 # Importing all of the required libraries for data manipulation, visualisation,
 # machine learning, dimensionality reduction, and geospatial analysis.
 
-#import warnings
-#warnings.filterwarnings('ignore')
-
 # This is my own function that I have created. This allows me to easily enter a blank line wherever I would like one.
 def breakLine():
     print("")
@@ -42,26 +39,10 @@ from sklearn.metrics import (
     mean_absolute_error, mean_squared_error, r2_score,
     roc_auc_score, roc_curve
 )
-
-
-# ============================== Imports that I used to test whilst the model was being developed and I ran into some errors. I will remove these before the final version is submitted =========================
-
-
-# import plotly.express as px
-# print("Before imports")
-
-# import matplotlib.pyplot as plt
-# print("matplotlib OK")
-
-# import pandas as pd
-# print("pandas OK")
-
-# import seaborn as sbn
-# print("seaborn OK")
-
-# from termcolor import colored
-# print("termcolor OK")
-
+from sklearn.pipeline import Pipeline
+from sklearn.utils.class_weight import compute_sample_weight
+from sklearn.base import clone
+from imblearn.over_sampling import SMOTE
 
 # ====================================================================      Data Preprocessing      ======================================================
 # Beginning the process of pre-processing the dataset.
@@ -381,6 +362,7 @@ print("=" * 70)
 breakLine()
 
 
+print ("========================================== THESE MAY NEED TO BE MOVED ===================================================")
 fig, axes = plt.subplots(2, 3, figsize=(18, 10))
 
 df = sheffield_dataframe_updated.copy()
@@ -401,65 +383,24 @@ df['urban_or_rural_area'] = df['urban_or_rural_area'].map({
 # Safety check
 print("Final target values:", sorted(df['urban_or_rural_area'].unique()))
 
+print ("========================================== THESE MAY NEED TO BE MOVED ===================================================")
 
 
+# Below, I have created a series of visualisations to explore the dataset, following the cleaning and imputation process.
+# These visualisations are important as they allow me to understand the distribution of the data, the relationships between different features, and any potential issues that may still be present within the dataset after cleaning.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-print("Message 1")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Collision count plot
+# Creating a Collision count plot
 sbn.countplot(
     data=sheffield_dataframe_updated.dropna(
         subset=["collision_adjusted_severity_serious"]),
     x="collision_adjusted_severity_serious",
-    ax=axes[0, 0], palette='Set2'
+    ax=axes[0, 0],
+    color='skyblue'
 )
 axes[0, 0].set_title("Serious Collision Distribution")
 axes[0, 0].set_xlabel("Severity")
 
-# Geographical scatter
+# Creating a Geographical scatter plot
 axes[0, 1].scatter(
     sheffield_dataframe_updated['longitude'],
     sheffield_dataframe_updated['latitude'],
@@ -469,7 +410,7 @@ axes[0, 1].set_title("Collision Locations (Lat/Lon)")
 axes[0, 1].set_xlabel("Longitude")
 axes[0, 1].set_ylabel("Latitude")
 
-# KDE plots
+# Creating two KDE plots
 sbn.kdeplot(data=sheffield_dataframe_updated["latitude"],
             ax=axes[0, 2], color='steelblue')
 axes[0, 2].set_title("KDE — Latitude Distribution")
@@ -478,7 +419,7 @@ sbn.kdeplot(data=sheffield_dataframe_updated["longitude"],
             ax=axes[1, 0], color='darkorange')
 axes[1, 0].set_title("KDE — Longitude Distribution")
 
-# Easting/Northing scatter
+# Creating an Easting/Northing scatter plot
 axes[1, 1].scatter(
     sheffield_dataframe_updated['location_northing_osgr'],
     sheffield_dataframe_updated['location_easting_osgr'],
@@ -488,7 +429,7 @@ axes[1, 1].set_title("Collision Locations (OS Grid)")
 axes[1, 1].set_xlabel("Northing")
 axes[1, 1].set_ylabel("Easting")
 
-# Local authority bar chart
+# Creating a Local authority bar chart
 sheffield_dataframe_updated['local_authority_highway_current'] \
     .value_counts().plot(kind="bar", ax=axes[1, 2], color='steelblue')
 axes[1, 2].set_title("Collisions by Highway Authority")
@@ -498,21 +439,26 @@ plt.suptitle('Sheffield Collision Data — Exploratory Visualisations', fontsize
 plt.tight_layout()
 plt.show()
 
+# Within my detailed_ReadMe.md file, I have explained each of these graphs and included a photo of them.
+# This is under the section titled "Final Preprocessing Result Charts (Graphs)"
+
 # Saving the dataset after cleaning and imputation.
 # I can now continue with my development with this new, cleaned dataset.
-# -----------------------------------------------------------------------
-remaining_nulls = sheffield_dataframe_updated.isnull().sum()
+
+remaining_nulls = sheffield_dataframe_updated.isnull().sum() # Performing one final check for any remaining N/A values within the dataset, just to ensure that all of the N/A values have been handled correctly.
 still_null = remaining_nulls[remaining_nulls > 0]
-if len(still_null) == 0:
-    print("\nFinal validation: No missing values remain in cleaned dataset.")
+if len(still_null) == 0: # If there are no remaining N/A values, then this message is printed to confirm that there are no missing values within the dataset.
+    print("Final validation: No missing values remain in cleaned dataset.")
+    breakLine()
 else:
-    print("\nRemaining missing values after cleaning:")
+    breakLine()
+    print("Remaining missing values after cleaning:") # Else, if there are still missing values within the dataset, then this message is printed, along with the count of the remaining N/A values for each of the columns that still contain them.
     print(still_null)
 
 sheffield_dataframe_updated.to_csv(
     "Sheffield Collision Data Cleaned.csv", index=False
 )
-print("Cleaned dataset saved: Sheffield Collision Data Cleaned.csv")
+print("Cleaned dataset saved: Sheffield Collision Data Cleaned.csv") # Hilighting what I have saved the new data file as. This is important as I will be using the new file for the rest of my work.
 
 # Feature Engineering
 
@@ -526,74 +472,114 @@ print("Cleaned dataset saved: Sheffield Collision Data Cleaned.csv")
 #   collision_age       —       Years since data collection started (trend feature)
 #   high_speed_zone     —       Binary flag for speed limits > or equal to 60mph (potentially motorway accidents)
 
-print("\n" + "=" * 70)
-print("4. FEATURE ENGINEERING")
+breakLine()
 print("=" * 70)
+print("Feature Engineering")
+print("=" * 70)
+breakLine()
 
-df = pd.read_csv('Sheffield Collision Data Cleaned.csv')
-
-df['hour'] = pd.to_datetime(df['time'], errors='coerce').dt.hour    # Extrapolating the hour from the time column within the dataset.
-
+df = pd.read_csv('Sheffield Collision Data Cleaned.csv') # Loading in the new, cleaned dataset, created above.
 
 # Time-based features
-df['is_weekend'] = df['day_of_week'].isin(['Saturday', 'Sunday']).astype(int)   # Extrapolating the day of the week based on the day_of_week column wthin the dataset.
+df['is_weekend'] = df['day_of_week'].isin([6, 7]).astype(int)  # Extrapolating the day of the week based on the day_of_week column wthin the dataset.
 
+df['hour'] = pd.to_datetime( # Defining a new column called "hour" which is the hour extracted from the time column.
+    df['time'],
+    format='%H:%M', # Specififying the format of the time column to ensure that the hour column is extracted correctly.
+    errors='coerce'
+).dt.hour # Returning the hour as its own column filled with integer values.
+
+# Create time of day categories (fixed binning issue)
 df['time_of_day'] = pd.cut(
     df['hour'], # I then use the new hour column here to create a time of day section which categorises the time of day into four different categories.
-    bins=[0, 6, 12, 18, 24],
+    bins=[0, 6, 12, 18, 24], # The bins are defined as follows: 0-6 is night, 6-12 is morning, 12-18 is afternoon, and 18-24 is evening. This allows me to capture any patterns that may be present within the different times of the day.
     labels=['Night', 'Morning', 'Afternoon', 'Evening'],
-    include_lowest=True
+    right=False # This means that the bins are left-inclusive and right-exclusive, ensuring that each hour is categorized correctly without overlap. For example, 6:00 will be categorized as "Morning" rather than "Night". This ensures it works with teh 24 hour clock format and that the time of day categories are accurate for analysis
 )
 
 # Risk/severity composite features
-df['risk_score'] = (
+df['risk_score'] = ( # Creating a total risk score that combines the number of vehicles and the number of casualties, giving more weight to casualties as they are a more direct indicator of severity.
     df['number_of_vehicles'] * 0.4 +
-    df['number_of_casualties'] * 0.6
+    df['number_of_casualties'] * 0.6 
+)   # This uses the mathematical formula above to calculate the new risk score for each collision within the dataset.
+
+df['casualty_per_vehicle'] = ( # Creating a new feature that represents the number of casualties per vehicle, which helps to normalise the severity of collisions based on their size.
+    df['number_of_casualties'] / (df['number_of_vehicles']) # Using this mathematical logic.
 )
 
-df['casualty_per_vehicle'] = (
-    df['number_of_casualties'] / (df['number_of_vehicles'] + 1)
-)
+# Interaction features with specific flags
+df['speed_urban_interaction'] = df['speed_limit'] * df['urban_or_rural_area'] # Creating an interaction term that multiplies the speed limit by the urban/rural flag, to capture how speed limits may have different effects in urban vs rural settings.
 
-# Interaction and domain-specific flags
-df['speed_urban_interaction'] = df['speed_limit'] * df['urban_or_rural_area']
-
-df['high_speed_zone'] = (df['speed_limit'] >= 60).astype(int)
+df['high_speed_zone'] = (df['speed_limit'] >= 60).astype(int) # Creating a binary flag to indicate whether the collision occurred in a high speed zone (60mph or above), which may correlate with more severe accidents.
 
 # Temporal trend feature
 if 'collision_year' in df.columns:
-    df['collision_age'] = df['collision_year'].max() - df['collision_year']
+    df['collision_age'] = df['collision_year'].max() - df['collision_year'] # Creating a feature that calculates the age of the collision in years from the latest collision year in the dataset, to capture any temporal trends or improvements in road safety over time.
 
+# Outlining all of the engineered features that I have added to the dataset.
 print("Engineered features added:")
 new_features = ['is_weekend', 'time_of_day', 'risk_score',
                 'casualty_per_vehicle', 'speed_urban_interaction',
                 'high_speed_zone', 'collision_age']
+
+# Printing all of the engineered features to confirm that the have been added to the dataset successfully.
 for f in new_features:
     if f in df.columns:
-        print(f"  + {f}")
+        print("  + ", {f}) # Printing them in a nice, neat format.
+breakLine()
 
-# Visualising engineered features
+# Visualising engineered features using graphs/charts
+# All of the graphs that are generate below are included within the results folder under "Feature-Engineering-Results"
+# Furthermore, they are explained in more detail within the detailed_ReadMe.md file, under the section titled "Feature Engineering - Graphs"
 fig, axes = plt.subplots(2, 3, figsize=(16, 10))
 
-sbn.countplot(data=df, x='is_weekend', ax=axes[0, 0], palette='Set2')
+# Weekday vs Weekend
+sbn.countplot(
+    data=df,
+    x='is_weekend',
+    ax=axes[0, 0],
+    palette='Set2'
+)
+
 axes[0, 0].set_title("Collisions: Weekday vs Weekend")
+axes[0, 0].set_xticks([0, 1])
 axes[0, 0].set_xticklabels(['Weekday', 'Weekend'])
 
-sbn.countplot(data=df, x='time_of_day', ax=axes[0, 1], palette='Set3',
-              order=['Night', 'Morning', 'Afternoon', 'Evening'])
+# Time of day
+sbn.countplot(
+    data=df,
+    x='time_of_day',
+    hue='time_of_day',
+    ax=axes[0, 1],
+    palette='Set3',
+    order=['Night', 'Morning', 'Afternoon', 'Evening'],
+    legend=False
+)
 axes[0, 1].set_title("Collisions by Time of Day")
 
+# Risk score
 sbn.histplot(df['risk_score'], bins=30, ax=axes[0, 2], color='coral')
 axes[0, 2].set_title("Risk Score Distribution")
 
+# Casualty per vehicle
 sbn.histplot(df['casualty_per_vehicle'], bins=30, ax=axes[1, 0],
              color='steelblue')
 axes[1, 0].set_title("Casualty per Vehicle Distribution")
 
-sbn.countplot(data=df, x='high_speed_zone', ax=axes[1, 1], palette='Set1')
+# High speed zone
+sbn.countplot(
+    data=df,
+    x='high_speed_zone',
+    hue='high_speed_zone',
+    ax=axes[1, 1],
+    palette='Set1',
+    legend=False
+)
 axes[1, 1].set_title("High Speed Zone (≥60mph) Collisions")
+axes[1, 1].set_xticks([0, 1])
 axes[1, 1].set_xticklabels(['Normal Speed', 'High Speed'])
 
+# Collision age
 if 'collision_age' in df.columns:
     sbn.histplot(df['collision_age'], bins=20, ax=axes[1, 2], color='green')
     axes[1, 2].set_title("Collision Age (years from latest)")
@@ -602,41 +588,18 @@ plt.suptitle('Feature Engineering — Distributions', fontsize=14)
 plt.tight_layout()
 plt.show()
 
-
-
-
-
-
-
-
-
-
-
-print("Message 2")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Supervised Learning - Classification
 
 # The dataset is split into train / validation / test (60/20/20).
-# I haev compared multiple algorithms per task to identify the most suitable model for the dataset.
+# I have compared multiple algorithms per task to identify the most suitable model for the dataset.
 
-print("\n" + "=" * 70)
-print("5. SUPERVISED LEARNING")
+breakLine()
 print("=" * 70)
+print("Supervised Learning")
+print("=" * 70)
+breakLine()
 
-# Correlation Heatmap
+# Creating a correlation heatmap for the numerical featues within the dataset.
 numeric_df = df.select_dtypes(include=["number"]).drop(
     columns=['collision_adjusted_severity_serious',
              'collision_adjusted_severity_slight'],
@@ -665,45 +628,69 @@ plt.show()
 # However, to improve this and make it more accurate, it would need to be tuned.
 # Finally, I have used Logistic Regression. This learned a mathematical relationship between the features and the classes and provided me with a simple baseline which could then be compared to more complex models.
 
-print("\n--- TASK A: Multiclass Classification (collision_severity) ---")
 
-multiclass_features = [
+
+breakLine()
+print("Multiclass Classification (collision_severity)") # Starting to work on multiclass classification for the collision severity column.
+# This is important as it allows me to predict the severity of a collision, which is a key aspect of road safety analysis and something that could ultimately help inform road safety policies and interventions within Sheffield.
+
+multiclass_features = [ # Defining the features that I will use for the multiclass classification.
     'weather_conditions', 'road_surface_conditions', 'light_conditions',
     'speed_limit', 'number_of_vehicles', 'number_of_casualties',
     'urban_or_rural_area', 'day_of_week', 'junction_detail', 'road_type',
     'is_weekend', 'risk_score', 'high_speed_zone'
 ]
 
-mc_df = df.drop(columns=['collision_index', 'collision_ref_no'],
+mc_df = df.drop(columns=['collision_index', 'collision_ref_no'], # Dropping any columns that aren't relevant for this task.
                 errors='ignore').dropna(
-    subset=multiclass_features + ['collision_severity']
+    subset=multiclass_features + ['collision_severity'] # Dropping any rows that have N/A values in the features or target column for this task, as these would cause issues during model training and evaluation.
 ).copy()
 
-# Fix: use a fresh LabelEncoder per column to avoid label cross-contamination
+# Encoding the categorical features using Label Encoding.
+# This is an important step as it allows me to convert the categorical features into a numerical format that can be used by machine learning algorithms.
 for col in mc_df.select_dtypes(include='object').columns:
     mc_df[col] = LabelEncoder().fit_transform(mc_df[col].astype(str))
 
-X_mc = mc_df[multiclass_features]
+X_mc = mc_df[multiclass_features] # Defining the feature matrix (X) and the target vector (y) for the multiclass classification.
 y_mc = mc_df['collision_severity']
 
-print('\nClass distribution (collision_severity):')
+breakLine()
+print('Class distribution (collision_severity):')
+breakLine()
 print(y_mc.value_counts(normalize=True).round(3))
-print('\nResponsible AI: class imbalance detected — class_weight=balanced applied')
+breakLine()
 
-# 60/20/20 data split
+# Using a 60/20/20 split for data training/validation/testing.
 X_temp, X_test_mc, y_temp, y_test_mc = train_test_split(
     X_mc, y_mc, test_size=0.2, random_state=42, stratify=y_mc)
 X_train_mc, X_val_mc, y_train_mc, y_val_mc = train_test_split(
-    X_temp, y_temp, test_size=0.25, random_state=42, stratify=y_temp)
+    X_temp, y_temp, test_size=0.25, random_state=42, stratify=y_temp) # The stratify parameter ensures that the class distribution is maintained across all splits, which is important for imbalanced datasets like this one.
 
 print(f'Split — train: {len(X_train_mc)}, val: {len(X_val_mc)}, '
-      f'test: {len(X_test_mc)}')
+      f'test: {len(X_test_mc)}') # Printing the number of samples in each of the splits to confirm that they are correct based on the 60/20/20 split that I initially intended to create.
+breakLine()
 
 scaler_mc = StandardScaler()
-X_train_mc_s = scaler_mc.fit_transform(X_train_mc)
-X_val_mc_s   = scaler_mc.transform(X_val_mc)
+X_train_mc_s = scaler_mc.fit_transform(X_train_mc) # Scaling the features using StandardScaler to ensure that they are on the same scale.
+X_val_mc_s   = scaler_mc.transform(X_val_mc) # This is important as it allows the models to learn more effectively and prevents a specific feature from dominating the learning process due to its scale.
 X_test_mc_s  = scaler_mc.transform(X_test_mc)
 
+# Applying SMOTE to the training data only to handle class imbalance.
+# SMOTE synthetically oversamples the minority classes so the model doesn't just learn to predict the majority class (which in this instance is Class 3) every time, which would result in misleadingly high accuracy but poor performance.
+print('Responsible AI: applying SMOTE to address class imbalance in training data.')
+breakLine()
+smote = SMOTE(random_state=42)
+X_train_resampled, y_train_resampled = smote.fit_resample(X_train_mc_s, y_train_mc)
+print(f'Post-SMOTE class distribution: {pd.Series(y_train_resampled).value_counts().to_dict()}')
+breakLine()
+
+# Here, I am computing the sample weights for Gradient Boosting.
+# As it does not support the class_weight parameter directly unlike Random Forest and Logistic Regression, Passing sample weights to fit() achieves the same effect of penalising misclassification of minority classes.
+gb_sample_weights = compute_sample_weight('balanced', y_train_resampled)
+
+# Displaying the results for each of the models that I have used for the multiclass classification.
+# I have also displayed the validation accuracy, weighted F1 score, and macro F1 score for each model.
+# Macro F1 is particularly important here as it equally weights all severity classes including minority classes, giving a more honest picture of model performance than accuracy alone.
 mc_models = {
     'Random Forest':       RandomForestClassifier(
                                n_estimators=100, random_state=42,
@@ -718,20 +705,36 @@ mc_models = {
                                random_state=42),
 }
 
+# Below, I have trained each of the models on the SMOTE-resampled training data and evaluated their performance on the validation set. I am now tracking both weighted and macro F1, as macro F1 better reflects performance across all severity classes including minorities.
 mc_results = {}
 for name, model in mc_models.items():
-    model.fit(X_train_mc_s, y_train_mc)
-    val_acc = model.score(X_val_mc_s, y_val_mc)
-    val_f1  = f1_score(y_val_mc, model.predict(X_val_mc_s), average='weighted')
-    mc_results[name] = {'val_accuracy': val_acc, 'val_f1': val_f1, 'model': model}
-    print(f'  {name:<25}  val acc: {val_acc:.3f}  val F1: {val_f1:.3f}')
+    # Gradient Boosting requires sample_weight to be passed directly to fit(), rather than via the class_weight parameter.
+    if name == 'Gradient Boosting':
+        model.fit(X_train_resampled, y_train_resampled,
+                  sample_weight=gb_sample_weights)
+    else:
+        model.fit(X_train_resampled, y_train_resampled)
 
-# Select best model by validation F1
-best_mc_name = max(mc_results, key=lambda k: mc_results[k]['val_f1'])
+    val_acc      = model.score(X_val_mc_s, y_val_mc)
+    val_f1       = f1_score(y_val_mc, model.predict(X_val_mc_s), average='weighted')
+    val_f1_macro = f1_score(y_val_mc, model.predict(X_val_mc_s), average='macro')
+    mc_results[name] = {
+        'val_accuracy': val_acc,
+        'val_f1': val_f1,
+        'val_f1_macro': val_f1_macro,
+        'model': model
+    }
+    print(f'  {name:<25}  val acc: {val_acc:.3f}  '
+          f'val F1 (weighted): {val_f1:.3f}  val F1 (macro): {val_f1_macro:.3f}')
+
+# Selecting the best model by macro F1 rather than weighted F1 or accuracy.
+# This ensures I pick the model that handles all severity classes well, not just the dominant one (Class 3).
+best_mc_name = max(mc_results, key=lambda k: mc_results[k]['val_f1_macro'])
 best_mc = mc_results[best_mc_name]['model']
 y_pred_mc = best_mc.predict(X_test_mc_s)
 
-print(f'\nBest multiclass model: {best_mc_name}')
+breakLine()
+print(f'Best multiclass model (by macro F1): {best_mc_name}')
 print(classification_report(y_test_mc, y_pred_mc))
 
 # Confusion matrix
@@ -743,7 +746,7 @@ ax.set_title(f'Confusion Matrix — {best_mc_name} (Multiclass Severity)')
 plt.tight_layout()
 plt.show()
 
-# Feature importance - Explainable AI
+# Feature importance — Demonstrating Explainable AI
 if hasattr(best_mc, 'feature_importances_'):
     feat_imp = pd.Series(
         best_mc.feature_importances_,
@@ -758,38 +761,46 @@ if hasattr(best_mc, 'feature_importances_'):
     plt.tight_layout()
     plt.show()
 
-    print("\nExplainable AI — Top 5 features:")
+    print("Explainable AI — Top 5 features:")
+    breakLine()
     for feat, imp in feat_imp.head(5).items():
         print(f"  {feat:<35} importance: {imp:.4f}")
-    print("  → speed_limit and number_of_casualties are dominant predictors,")
+    print("    Both speed_limit and number_of_casualties are dominant predictors,")
     print("    consistent with road safety domain knowledge for Sheffield.")
 
-# 5-fold cross-validation on best model
+# 5-fold cross-validation using a Pipeline to ensure scaling is applied correctly within each fold.
+# Without this, the scaler would be fit on the full dataset before splitting, this could result in information leaking from validation folds into the training process.
+best_mc_fresh = clone(best_mc) # Creating a new unfitted copy of the best model for use in cross-validation.
+cv_pipeline = Pipeline([
+    ('scaler', StandardScaler()),
+    ('model', best_mc_fresh)
+])
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-cv_scores = cross_val_score(best_mc, X_mc, y_mc, cv=skf, scoring='f1_weighted')
-print(f'\n5-fold CV F1 (weighted): {cv_scores.mean():.3f} ± {cv_scores.std():.3f}')
-print('Consistent CV scores confirm the model generalises well to unseen data.')
+cv_scores = cross_val_score(cv_pipeline, X_mc, y_mc, cv=skf, scoring='f1_macro')
+breakLine()
+print(f'5-fold CV F1 (macro): {cv_scores.mean():.3f} ± {cv_scores.std():.3f}')
+breakLine()
 
-# Model comparison bar chart
+# Model comparison bar chart — now showing accuracy, weighted F1, and macro F1
+# so that the true performance across all severity classes is clearly visible.
 fig, ax = plt.subplots(figsize=(10, 5))
-names = list(mc_results.keys())
-val_accs = [mc_results[n]['val_accuracy'] for n in names]
-val_f1s  = [mc_results[n]['val_f1'] for n in names]
+names    = list(mc_results.keys())
+val_accs = [mc_results[n]['val_accuracy']  for n in names]
+val_f1s  = [mc_results[n]['val_f1']        for n in names]
+val_mf1s = [mc_results[n]['val_f1_macro']  for n in names]
 x = range(len(names))
-ax.bar([i - 0.2 for i in x], val_accs,  width=0.35,
-       label='Val Accuracy', color='steelblue')
-ax.bar([i + 0.2 for i in x], val_f1s,   width=0.35,
-       label='Val F1 (weighted)', color='darkorange')
+ax.bar([i - 0.25 for i in x], val_accs,  width=0.25, label='Val Accuracy',      color='steelblue')
+ax.bar([i + 0.00 for i in x], val_f1s,   width=0.25, label='Val F1 (weighted)',  color='darkorange')
+ax.bar([i + 0.25 for i in x], val_mf1s,  width=0.25, label='Val F1 (macro)',     color='seagreen')
 ax.set_xticks(list(x))
 ax.set_xticklabels(names, rotation=15, ha='right')
 ax.set_ylabel('Score')
-ax.set_title('Task A — Multiclass Model Comparison')
+ax.set_title('Multiclass Model Comparison')
 ax.set_ylim(0, 1)
 ax.legend()
 ax.grid(True, axis='y', linestyle='--', alpha=0.4)
 plt.tight_layout()
 plt.show()
-
 # Binary Classification - urban_or_rural_area
 
 # Here, I aim to predict whether a collision occurred in an urban or rural area.

@@ -195,7 +195,7 @@ Moving to the bottom left graph, we can see that the number of casualties per ve
 
 Moving the the bottom middle image, we can see that the majority of collisions occur at normal speed (any speed below 60mph). This also confirms my suspicions that the majority of accidents aren't serious. with over 7000 collisions occuring at a normal speed.
 
-Finally, moving to the bottom right image, we can see that the number of collisions has in fact reduced over the last 40 years. This is almost certainly due to the new road safety measures and modern technolgy within cars that actually prevent them from crashing. For example, asissted/automated driving. This could also be due to stricter driving tests making for a higher standard driving across the country. This was a very interesting and surprising result for me as I didn't believe this would be the case. This was something that I hilighted earlier.
+Finally, moving to the bottom right image, we can see that the number of collisions has in fact reduced over the last 40 years. This is almost certainly due to the new road safety measures and modern technolgy within cars that actually prevent them from crashing. For example, asissted/automated driving. This could also be due to stricter driving tests making for a higher standard driving across the country. This was a very interesting and surprising result for me as I didn't believe this would be the case. This was something that I hilighted earlier..
 
 # Supervised Learning
 

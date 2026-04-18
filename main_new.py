@@ -369,7 +369,7 @@ df = sheffield_dataframe_updated.copy()
 
 # Recreate engineered features
 df['is_weekend'] = df['day_of_week'].isin([6, 7]).astype(int)
-df['high_speed_zone'] = (df['speed_limit'] >= 50).astype(int)
+df['high_speed_zone'] = (df['speed_limit'] >= 60).astype(int)
 
 # Clean target (remove invalid class)
 df = df[df['urban_or_rural_area'].isin([1, 2])]
@@ -628,8 +628,6 @@ plt.show()
 # However, to improve this and make it more accurate, it would need to be tuned.
 # Finally, I have used Logistic Regression. This learned a mathematical relationship between the features and the classes and provided me with a simple baseline which could then be compared to more complex models.
 
-
-
 breakLine()
 print("Multiclass Classification (collision_severity)") # Starting to work on multiclass classification for the collision severity column.
 # This is important as it allows me to predict the severity of a collision, which is a key aspect of road safety analysis and something that could ultimately help inform road safety policies and interventions within Sheffield.
@@ -811,8 +809,8 @@ plt.show()
 # At the same time, I used ROC-AUC analysis to evaluate the model's ability to tell the difference between urban and rural collisions
 # across the limits of each classification type.
 
-print("\n--- TASK B: Binary Classification (urban_or_rural_area) ---")
-
+print("Binary Classification (urban_or_rural_area)") # Starting to work on binary classification for the urban_or_rural_area column.
+breakLine()
 binary_features = ['speed_limit', 'road_type', 'first_road_class',
                    'weather_conditions', 'light_conditions',
                    'is_weekend', 'high_speed_zone']
@@ -826,6 +824,9 @@ df['urban_or_rural_area'] = df['urban_or_rural_area'].map({
     2: 0
 })
 
+df['is_weekend'] = df['day_of_week'].isin([6, 7]).astype(int) # Reiterating the creation of the engineered features that I created earlier.
+df['high_speed_zone'] = (df['speed_limit'] >= 60).astype(int)
+df['risk_score'] = (df['number_of_casualties'] > 0).astype(int)
 
 
 
@@ -854,35 +855,40 @@ df['urban_or_rural_area'] = df['urban_or_rural_area'].map({
 
 
 
-bin_df = df[binary_features + ['urban_or_rural_area']].dropna().copy()
+bin_df = df[binary_features + ['urban_or_rural_area']].dropna().copy()  # Dropping any rows that have N/A values in the features or target column for this task, as these would cause issues during model training and evaluation.
+# There aren't any N/A Values present (as I saw earlier) but this is just an extra precaution.
 
 for col in bin_df.select_dtypes(include='object').columns:
     bin_df[col] = LabelEncoder().fit_transform(bin_df[col].astype(str))
 
 X_bin = bin_df[binary_features]
-y_bin = bin_df['urban_or_rural_area']
+y_bin = bin_df['urban_or_rural_area'] # Defining the feature matrix (X) and the target vector (y). The target vector is the urban_or_rural_area column, which has been converted to a binary format where 1 represents urban and 0 represents rural.
 
-print('\nBinary class distribution:')
+print('Binary class distribution:') # Printing the distribution of the target classes to understand the balance of urban vs rural collisions within the dataset.
 print(y_bin.value_counts(normalize=True).round(3))
 
-X_tr_b, X_te_b, y_tr_b, y_te_b = train_test_split(
+X_tr_b, X_te_b, y_tr_b, y_te_b = train_test_split( # Splitting the data into training and testing sets.
     X_bin, y_bin, test_size=0.2, random_state=42, stratify=y_bin)
 
-scaler_bin = StandardScaler()
+scaler_bin = StandardScaler() # Scaling the features using StandardScaler to ensure that they are on the same scale. Allowing for continuity and further accuracy.
 X_tr_b_s = scaler_bin.fit_transform(X_tr_b)
 X_te_b_s  = scaler_bin.transform(X_te_b)
 
 # Hyperparameter tuning with GridSearchCV
-param_grid = {'n_estimators': [50, 100, 200], 'max_depth': [5, 10, None]}
+param_grid = {'n_estimators': [50, 100, 200], 'max_depth': [5, 10, None]} # Defining a small grid of hyperparameters for the Random Forest model to search over. This includes different numbers of trees (n_estimators) and different maximum depths for the trees (max_depth). This allows me to find the best combination of these hyperparameters.
 rf_grid = GridSearchCV(
     RandomForestClassifier(random_state=42),
     param_grid, cv=5, scoring='f1', n_jobs=-1, verbose=0)
 rf_grid.fit(X_tr_b_s, y_tr_b)
 
-print(f'\nBest hyperparameters (GridSearchCV): {rf_grid.best_params_}')
+breakLine()
+print(f'Best hyperparameters (GridSearchCV): {rf_grid.best_params_}')
+breakLine()
 y_pred_bin = rf_grid.predict(X_te_b_s)
 print(f'Binary RF test F1:  {f1_score(y_te_b, y_pred_bin):.3f}')
+breakLine()
 print(f'Binary RF accuracy: {accuracy_score(y_te_b, y_pred_bin):.3f}')
+breakLine()
 print(classification_report(y_te_b, y_pred_bin,
       target_names=['Rural', 'Urban']))
 
@@ -897,13 +903,14 @@ plt.plot(fpr, tpr, color='steelblue', lw=2,
 plt.plot([0, 1], [0, 1], 'k--', lw=1.5, label='Random Classifier')
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
-plt.title('Task B — ROC Curve: Urban vs Rural Classification')
+plt.title('ROC Curve: Urban vs Rural Classification')
 plt.legend()
 plt.grid(True, linestyle='--', alpha=0.4)
 plt.tight_layout()
 plt.show()
 
-print(f'\nROC-AUC Score: {auc_score:.3f}')
+print(f'ROC-AUC Score: {auc_score:.3f}')
+breakLine()
 print('AUC > 0.7 indicates the model can discriminate urban/rural collisions.')
 
 # Binary confusion matrix
@@ -911,38 +918,43 @@ cm_bin = confusion_matrix(y_te_b, y_pred_bin)
 fig, ax = plt.subplots(figsize=(6, 5))
 ConfusionMatrixDisplay(cm_bin, display_labels=['Rural', 'Urban']).plot(
     ax=ax, cmap='Greens', colorbar=False)
-ax.set_title('Task B — Confusion Matrix (Urban/Rural)')
+ax.set_title('Confusion Matrix (Urban/Rural)')
 plt.tight_layout()
 plt.show()
 
 # Categorial Classification - junction)detail
 
-print("\n--- TASK C: Categorical Classification (junction_detail) ---")
-
+print("Categorical Classification (junction_detail)") # Starting to work on categorical classification for the junction_detail column.
+breakLine()
 cat_features = ['local_authority_district', 'road_type', 'speed_limit',
                 'first_road_class', 'weather_conditions', 'urban_or_rural_area']
 
+# Here, I have compared two different algorithms, RF and DT.
+# I have used Random Forest (RF), to build a sequence of decision trees and combine them, this came out as the best model based on the score (F1). I will discuss this further within my detailed ReadMe.md file.
+# I have used Decision Tree (DT), to learn if/then rules. For example, if the speed is greater than 60 and the road is equal to rural. Then, the accident is likely to be at a junction.
 cat_df = df[cat_features + ['junction_detail']].dropna().copy()
 
 for col in cat_df.select_dtypes(include='object').columns:
-    cat_df[col] = LabelEncoder().fit_transform(cat_df[col].astype(str))
+    cat_df[col] = LabelEncoder().fit_transform(cat_df[col].astype(str)) # Encoding the categorical features using Label Encoding. This is an important step as it allows me to convert the categorical features into a numerical format that can then be used by machine learning algorithms.
 
 X_cat = cat_df[cat_features]
 y_cat = cat_df['junction_detail']
 
-print('\nJunction detail class distribution:')
+breakLine()
+print('Junction detail class distribution:')
+breakLine()
 print(y_cat.value_counts())
 
-X_tr_c, X_te_c, y_tr_c, y_te_c = train_test_split(
-    X_cat, y_cat, test_size=0.2, random_state=42, stratify=y_cat)
+X_tr_c, X_te_c, y_tr_c, y_te_c = train_test_split( # Splitting the data into training and testing sets.
+    X_cat, y_cat, test_size=0.2, random_state=42, stratify=y_cat) # Using the stratify parameter again here, as I did earlier.
 
-scaler_cat = StandardScaler()
+scaler_cat = StandardScaler() # Using StandardScaler
 X_tr_c_s = scaler_cat.fit_transform(X_tr_c)
 X_te_c_s  = scaler_cat.transform(X_te_c)
 
-# Test two algorithms
+# Creating two different test algorithms. 
 cat_models = {
-    'Random Forest':  RandomForestClassifier(
+    'Random Forest':  RandomForestClassifier( # 
                           n_estimators=100, random_state=42,
                           class_weight='balanced'),
     'Decision Tree':  DecisionTreeClassifier(
@@ -950,36 +962,39 @@ cat_models = {
                           class_weight='balanced'),
 }
 
+# Displaying the results for each of the models that I have used for the categorical classification.
 for name, mdl in cat_models.items():
     mdl.fit(X_tr_c_s, y_tr_c)
     preds_c = mdl.predict(X_te_c_s)
-    print(f'\n{name} — Junction Detail Classification:')
+    print(f'{name} — Junction Detail Classification:')
+    breakLine()
     print(classification_report(y_te_c, preds_c))
 
 # Confusion matrix for best categorical model
 cm_cat = confusion_matrix(y_te_c, cat_models['Random Forest'].predict(X_te_c_s))
 fig, ax = plt.subplots(figsize=(9, 7))
 sbn.heatmap(cm_cat, annot=True, fmt='d', cmap='Blues', ax=ax)
-ax.set_title('Task C — Confusion Matrix (Junction Detail)')
+ax.set_title('Confusion Matrix (Junction Detail)') 
 ax.set_xlabel('Predicted')
 ax.set_ylabel('Actual')
 plt.tight_layout()
 plt.show()
 
-# police_officer_attend - Binary Classification
-# More meaningful binary task than weather prediction.
+# police_officer_attend - Binary Classification here again
+# This is a more meaningful binary task than weather prediction.
 # Police attendance is relevant for road safety policy decisions.
 
-print("\n--- TASK D: Binary Classification (did_police_officer_attend) ---")
-
-police_target = 'did_police_officer_attend_scene_of_accident'
-police_features = [
+print("Binary Classification (did_police_officer_attend)")
+breakLine()
+police_target = 'Did_police_officer_attend_scene_of_accident'
+police_features = [ # Specifying the features that I will use for the binary classification of the police attendance column.
     'collision_severity', 'number_of_casualties', 'number_of_vehicles',
     'speed_limit', 'road_type', 'urban_or_rural_area',
     'junction_detail', 'light_conditions', 'weather_conditions',
     'risk_score', 'is_weekend'
 ]
 
+# Before continuing, I am checking here to ensure that the police attendance column is present within the dataset as this is a very important column for this task.
 if police_target in df.columns:
     police_df = df[police_features + [police_target]].dropna().copy()
 
@@ -990,24 +1005,25 @@ if police_target in df.columns:
     X_pol = police_df[police_features]
     y_pol = police_df[police_target]
 
-    print('\nPolice attendance class distribution:')
+    print('Police attendance class distribution:')
+    breakLine()
     print(y_pol.value_counts(normalize=True).round(3))
 
     X_tr_p, X_te_p, y_tr_p, y_te_p = train_test_split(
         X_pol, y_pol, test_size=0.2, random_state=42, stratify=y_pol)
 
-    scaler_pol = StandardScaler()
+    scaler_pol = StandardScaler() # Using StandardScaler again here.
     X_tr_p_s = scaler_pol.fit_transform(X_tr_p)
     X_te_p_s  = scaler_pol.transform(X_te_p)
 
-    rf_pol = RandomForestClassifier(
-        n_estimators=100, random_state=42, class_weight='balanced')
-    rf_pol.fit(X_tr_p_s, y_tr_p)
+    rf_pol = RandomForestClassifier( # Classifying police attendance using a RF model as this was found previously to be the best model.
+        n_estimators=100, random_state=42, class_weight='balanced') # adding a balanced class weight to handle any potential class imbalance in the police attendance target vaiable.
+    rf_pol.fit(X_tr_p_s, y_tr_p) # Doing this helps to ensure that the models learns effectively from both the training data and the class distribution which is very important to help ensure accurate predicitons.
     y_pred_pol = rf_pol.predict(X_te_p_s)
 
     print(classification_report(y_te_p, y_pred_pol))
 
-    # ROC curve for Task D
+    # ROC curve for the police attendance prediction
     if len(np.unique(y_pol)) == 2:
         y_prob_pol = rf_pol.predict_proba(X_te_p_s)[:, 1]
         fpr_p, tpr_p, _ = roc_curve(y_te_p, y_prob_pol)
@@ -1018,14 +1034,40 @@ if police_target in df.columns:
         plt.plot([0, 1], [0, 1], 'k--', lw=1.5)
         plt.xlabel('False Positive Rate')
         plt.ylabel('True Positive Rate')
-        plt.title('Task D — ROC Curve: Police Attendance Prediction')
+        plt.title('ROC Curve: Police Attendance Prediction')
         plt.legend()
         plt.grid(True, linestyle='--', alpha=0.4)
         plt.tight_layout()
         plt.show()
-else:
-    print(f"  Column '{police_target}' not found — skipping Task D.")
+else: # If the police attendance column isn't found within the dataset...
+    print(f"  Column '{police_target}' not found — skipping Task D.") # I will print this message and skip the binary classification task.
+    breakLine()
     print("  (Ensure column name matches your dataset exactly)")
+
+# However, this is not needed and it is just a precaution as I have already confirmed that the column is present within the dataset.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Regression Analysis
 # Within this section, multiple regression models were used to predict the number_of_casualties.

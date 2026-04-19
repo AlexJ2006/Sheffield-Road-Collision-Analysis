@@ -20,8 +20,6 @@ Therefore meaning, I had filled every row with the same value. This makes sense 
 
 Firstly, the dataset initially contained roughly 2600 of one value. This meant that it was extremely likely that the rest of the values were going to be the same. Secondly, the dataset is for Sheffield ONLY. Therefore, the local authority that looks after the highways will be the authority within the local area of Sheffield, meaning that it will be the same throughout the entire dataset. If it wasn't the same area code, the data present wouldn't be for sheffield and it would need to be dealt with accordingly as it would present innacuracies within the model, further down the line.
 
-
-
 * latitude & longitude
 
 The way in which I decided to clean this column and prepare it for use was with mean imputation. Below is the image of the graphs containing the before and after results for the longitude and latitude columns.
@@ -79,18 +77,6 @@ Evidence of the output can be found in the image below:
 Results & Justification:
 
 Once again, as for the section above, the columns showed that they had very few N/A values. However, when using the mode for these columns, the mode was found to be 0 for each as the data is binary data and 0 is evidently the most common value in this instance.
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 * Outlier Detection (IQR Method)
@@ -175,7 +161,6 @@ The Fifth new feature that I added was "speed_urban_interaction". This feature a
 The Sixth new feature that I added was "high_speed_zone". Simply, this checks whether the "speed_limit" was > (greater than) 60. If it was, it is classed as a high speed zone. Collisions within a high speed zone are more likely to be serious collisions.
 
 The Seventh and final new feature that I added was "collision_age". This aimed to see whetehr there was a difference in the number of collisions in previous years comapred to nowadays. Theoretically, this could then tell me whether road safety has improved or not over the years. However, there are also other factors that come into play here. For example, there may be significantly more drivers on the roads than there has been before. This would mean that the road safety might well have improved but we may not be able to see this statistically represented here.
-
 
 * Feature Engineering - Distributions
 

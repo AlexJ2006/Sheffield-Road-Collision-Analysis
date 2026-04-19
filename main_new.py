@@ -30,7 +30,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.linear_model import LinearRegression, Ridge, LassoCV
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.metrics import (
@@ -43,6 +43,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.utils.class_weight import compute_sample_weight
 from sklearn.base import clone
 from imblearn.over_sampling import SMOTE
+from sklearn.pipeline import make_pipeline
+from sklearn.linear_model import RidgeCV
+from sklearn.dummy import DummyRegressor
+import plotly.express as px
 
 # ====================================================================      Data Preprocessing      ======================================================
 # Beginning the process of pre-processing the dataset.
@@ -459,7 +463,7 @@ sheffield_dataframe_updated.to_csv(
     "Sheffield Collision Data Cleaned.csv", index=False
 )
 print("Cleaned dataset saved: Sheffield Collision Data Cleaned.csv") # Hilighting what I have saved the new data file as. This is important as I will be using the new file for the rest of my work.
-
+breakLine()
 # Feature Engineering
 
 # New features are taken from existing columns to capture any hidden patterns.
@@ -516,6 +520,9 @@ df['high_speed_zone'] = (df['speed_limit'] >= 60).astype(int) # Creating a binar
 if 'collision_year' in df.columns:
     df['collision_age'] = df['collision_year'].max() - df['collision_year'] # Creating a feature that calculates the age of the collision in years from the latest collision year in the dataset, to capture any temporal trends or improvements in road safety over time.
 
+df.to_csv('Sheffield Collision Data Cleaned.csv', index=False) # Saving the dataset again after the feature engineering process so I can now continue with the res of my work using the engineered features.
+print("Cleaned dataset with engineered features saved.")
+
 # Outlining all of the engineered features that I have added to the dataset.
 print("Engineered features added:")
 new_features = ['is_weekend', 'time_of_day', 'risk_score',
@@ -537,8 +544,10 @@ fig, axes = plt.subplots(2, 3, figsize=(16, 10))
 sbn.countplot(
     data=df,
     x='is_weekend',
+    hue='is_weekend',
     ax=axes[0, 0],
-    palette='Set2'
+    palette='Set2',
+    legend=False
 )
 
 axes[0, 0].set_title("Collisions: Weekday vs Weekend")
@@ -827,7 +836,7 @@ df['urban_or_rural_area'] = df['urban_or_rural_area'].map({
 df['is_weekend'] = df['day_of_week'].isin([6, 7]).astype(int) # Reiterating the creation of the engineered features that I created earlier.
 df['high_speed_zone'] = (df['speed_limit'] >= 60).astype(int)
 df['risk_score'] = (df['number_of_casualties'] > 0).astype(int)
-
+police_target = 'did_police_officer_attend_scene_of_accident'
 
 
 
@@ -986,7 +995,7 @@ plt.show()
 
 print("Binary Classification (did_police_officer_attend)")
 breakLine()
-police_target = 'Did_police_officer_attend_scene_of_accident'
+police_target = 'did_police_officer_attend_scene_of_accident'
 police_features = [ # Specifying the features that I will use for the binary classification of the police attendance column.
     'collision_severity', 'number_of_casualties', 'number_of_vehicles',
     'speed_limit', 'road_type', 'urban_or_rural_area',
@@ -994,260 +1003,251 @@ police_features = [ # Specifying the features that I will use for the binary cla
     'risk_score', 'is_weekend'
 ]
 
+auc_p = None
+
 # Before continuing, I am checking here to ensure that the police attendance column is present within the dataset as this is a very important column for this task.
 if police_target in df.columns:
+
     police_df = df[police_features + [police_target]].dropna().copy()
 
+    # Encoding categorical variables
     for col in police_df.select_dtypes(include='object').columns:
         police_df[col] = LabelEncoder().fit_transform(
-            police_df[col].astype(str))
+            police_df[col].astype(str)
+        )
 
     X_pol = police_df[police_features]
-    y_pol = police_df[police_target]
+    y_pol = police_df[police_target].astype(int)
 
     print('Police attendance class distribution:')
     breakLine()
     print(y_pol.value_counts(normalize=True).round(3))
 
-    X_tr_p, X_te_p, y_tr_p, y_te_p = train_test_split(
-        X_pol, y_pol, test_size=0.2, random_state=42, stratify=y_pol)
+    # Ensuring that the dataset is suitable for classification before splitting
+    if y_pol.nunique() < 2:
+        print("Not enough classes for classification after preprocessing.")
+    else:
 
-    scaler_pol = StandardScaler() # Using StandardScaler again here.
-    X_tr_p_s = scaler_pol.fit_transform(X_tr_p)
-    X_te_p_s  = scaler_pol.transform(X_te_p)
+        X_tr_p, X_te_p, y_tr_p, y_te_p = train_test_split(
+            X_pol, y_pol,
+            test_size=0.2,
+            random_state=42,
+            stratify=y_pol
+        )
 
-    rf_pol = RandomForestClassifier( # Classifying police attendance using a RF model as this was found previously to be the best model.
-        n_estimators=100, random_state=42, class_weight='balanced') # adding a balanced class weight to handle any potential class imbalance in the police attendance target vaiable.
-    rf_pol.fit(X_tr_p_s, y_tr_p) # Doing this helps to ensure that the models learns effectively from both the training data and the class distribution which is very important to help ensure accurate predicitons.
-    y_pred_pol = rf_pol.predict(X_te_p_s)
+        scaler_pol = StandardScaler()  # Using StandardScaler again here.
+        X_tr_p_s = scaler_pol.fit_transform(X_tr_p)
+        X_te_p_s = scaler_pol.transform(X_te_p)
 
-    print(classification_report(y_te_p, y_pred_pol))
+        rf_pol = RandomForestClassifier(
+            # Classifying police attendance using a RF model as this was found previously to be the best model.
+            n_estimators=100,
+            random_state=42,
+            class_weight='balanced'
+        )
+        # adding a balanced class weight to handle any potential class imbalance in the police attendance target variable.
+        rf_pol.fit(X_tr_p_s, y_tr_p)
+        # Doing this helps to ensure that the model learns effectively from both the training data and the class distribution which is very important to help ensure accurate predictions.
+        y_pred_pol = rf_pol.predict(X_te_p_s)
 
-    # ROC curve for the police attendance prediction
-    if len(np.unique(y_pol)) == 2:
-        y_prob_pol = rf_pol.predict_proba(X_te_p_s)[:, 1]
-        fpr_p, tpr_p, _ = roc_curve(y_te_p, y_prob_pol)
-        auc_p = roc_auc_score(y_te_p, y_prob_pol)
-        plt.figure(figsize=(7, 6))
-        plt.plot(fpr_p, tpr_p, color='darkorange', lw=2,
-                 label=f'ROC Curve (AUC = {auc_p:.3f})')
-        plt.plot([0, 1], [0, 1], 'k--', lw=1.5)
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('ROC Curve: Police Attendance Prediction')
-        plt.legend()
-        plt.grid(True, linestyle='--', alpha=0.4)
-        plt.tight_layout()
-        plt.show()
-else: # If the police attendance column isn't found within the dataset...
-    print(f"  Column '{police_target}' not found — skipping Task D.") # I will print this message and skip the binary classification task.
+        print(classification_report(y_te_p, y_pred_pol))
+
+        # ROC curve for the police attendance prediction
+        if len(np.unique(y_te_p)) == 2:
+            y_prob_pol = rf_pol.predict_proba(X_te_p_s)[:, 1]
+
+            fpr_p, tpr_p, _ = roc_curve(y_te_p, y_prob_pol)
+            auc_p = roc_auc_score(y_te_p, y_prob_pol)
+
+            plt.figure(figsize=(7, 6))
+            plt.plot(fpr_p, tpr_p, color='darkorange', lw=2,
+                     label=f'ROC Curve (AUC = {auc_p:.3f})')
+            plt.plot([0, 1], [0, 1], 'k--', lw=1.5)
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.title('ROC Curve: Police Attendance Prediction')
+            plt.legend()
+            plt.grid(True, linestyle='--', alpha=0.4)
+            plt.tight_layout()
+            plt.show()
+else:
+    # If the police attendance column isn't found within the dataset...
+    print(f"  Column '{police_target}' not found.")
     breakLine()
     print("  (Ensure column name matches your dataset exactly)")
-
-# However, this is not needed and it is just a precaution as I have already confirmed that the column is present within the dataset.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    # This is a precaution as I have already confirmed that the column should be present in the dataset.
+# Converting the police attendance target variable to an integer type to ensure it is in the correct format for classification.
+# I will then use this later.
 
 # Regression Analysis
-# Within this section, multiple regression models were used to predict the number_of_casualties.
-# Four different algorithms were compared. These were:
+# Within this section, I have used multiple regression models to predict the "number_of_casualties" target variable.
+# The four different algorithms that were compared were:
 #   linear
 #   Ridge
 #   Lasso
 #   Random Forest (RF)
 
-# I have also split the data into Train/Val/Test. 
+# I have also split the data into Train/Validation/Test. 
 # This allowed me to perform a k-fold cross-validation test to evaluate the results.
 # I then added a residual plot for error analysis.
-
-print("\n" + "=" * 70)
-print("6. REGRESSION ANALYSIS")
+breakLine()
 print("=" * 70)
-
+print("Regression Analysis")
+print("=" * 70)
+breakLine()
+# Load data
 df_reg = pd.read_csv('Sheffield Collision Data Cleaned.csv')
 
-# Re-applying engineered features to the regression dataframe
-df_reg['is_weekend'] = df_reg['day_of_week'].isin(
-    ['Saturday', 'Sunday']).astype(int)
-df_reg['risk_score'] = (df_reg['number_of_vehicles'] * 0.4 +
-                        df_reg['number_of_casualties'] * 0.6)
+# Feature engineering
+df_reg['is_weekend'] = df_reg['day_of_week'].isin(['Saturday', 'Sunday']).astype(int)
 df_reg['high_speed_zone'] = (df_reg['speed_limit'] >= 60).astype(int)
 
+# Feature list
 reg_features = [
     'weather_conditions', 'light_conditions', 'road_surface_conditions',
     'junction_detail', 'junction_control', 'speed_limit',
     'urban_or_rural_area', 'day_of_week', 'hour',
-    'is_weekend', 'high_speed_zone'
+    'is_weekend', 'high_speed_zone', 'number_of_vehicles'
 ]
 
+# Prepare dataframe
 reg_df = df_reg[reg_features + ['number_of_casualties']].dropna().copy()
 
-for col in reg_df.select_dtypes(include='object').columns:
-    reg_df[col] = LabelEncoder().fit_transform(reg_df[col].astype(str))
+reg_df = pd.get_dummies(reg_df, drop_first=True)
 
-X_reg = reg_df[reg_features]
-y_reg = reg_df['number_of_casualties']
+X_reg = reg_df.drop(columns=['number_of_casualties'])
 
-print(f"\nRegression target — number_of_casualties:")
-print(f"  Mean: {y_reg.mean():.3f}, Std: {y_reg.std():.3f}, "
+import numpy as np
+y_reg = np.log1p(reg_df['number_of_casualties'])
+
+print("Regression target = number_of_casualties:")
+breakLine()
+print(f"Mean: {y_reg.mean():.3f}, Std: {y_reg.std():.3f}, "
       f"Min: {y_reg.min()}, Max: {y_reg.max()}")
 
-# Train / val / test (60/20/20)
+# Train / val / test split
+from sklearn.model_selection import train_test_split
+
 X_tmp_r, X_te_r, y_tmp_r, y_te_r = train_test_split(
     X_reg, y_reg, test_size=0.2, random_state=42)
+
 X_tr_r, X_vl_r, y_tr_r, y_vl_r = train_test_split(
     X_tmp_r, y_tmp_r, test_size=0.25, random_state=42)
 
-scaler_reg = StandardScaler()
-X_tr_r_s = scaler_reg.fit_transform(X_tr_r)
-X_vl_r_s  = scaler_reg.transform(X_vl_r)
-X_te_r_s  = scaler_reg.transform(X_te_r)
-
+# Below, I have defined the regression models that I will be using for the regression analysis.
 reg_models = {
-    'Linear Regression':  LinearRegression(),
-    'Ridge':              Ridge(alpha=1.0),
-    'Lasso':              Lasso(alpha=0.1),
-    'Random Forest Reg':  RandomForestRegressor(
-                              n_estimators=100, random_state=42),
-    'Gradient Boosting':  GradientBoostingRegressor(
-                              n_estimators=100, random_state=42),
+    'Baseline': DummyRegressor(strategy='mean'), # I have also included a simple baseline model that always predicts the mean number of casualties.
+    # This allows me to compare the performance of the more complex modes against a simple heuristic so I can see whether they are actually learning meaningful patterns from the data or not.
+    'Linear Regression': make_pipeline(
+        StandardScaler(), LinearRegression()
+    ),
+    # The ridge regression model.
+    'Ridge': make_pipeline(
+        StandardScaler(),
+        RidgeCV(alphas=[0.1, 1.0, 10.0])
+    ),
+    # The lasso regression model.
+    'Lasso': make_pipeline(
+        StandardScaler(),
+        LassoCV(max_iter=10000)
+    ),
+    # The Random Forest regression model.
+    'Random Forest Reg': RandomForestRegressor(
+        n_estimators=300,
+        max_depth=5,
+        min_samples_leaf=5,
+        random_state=42
+    ),
+    # The Gradient Boosting regression model.
+    'Gradient Boosting': GradientBoostingRegressor(
+        n_estimators=300,
+        learning_rate=0.05,
+        max_depth=3,
+        random_state=42
+    ),
 }
 
+# Evaluation
 reg_results = {}
-print("\nValidation set performance:")
+print("Validation set performance:") # Printing the performance of each of the regression models on the validation set.
+breakLine()
+# Here, I am using MAE, RMSE and R squared to evaulate the performance of the regression models.
+# MAE gives me the average absolute error in the original casualty count scale, which is easy to interpret.
+# RMSE penalises larger errors more than smaller ones, which is important for casualty prediction as large underpredictions  could be particularly harmful within real world context.
+# R squared indicates the proportion of varience in the casualty count that is explained by the model, giving me a sense of the overall fit of the data within the model.
 for name, model in reg_models.items():
-    model.fit(X_tr_r_s, y_tr_r)
-    preds = model.predict(X_vl_r_s)
-    mae  = mean_absolute_error(y_vl_r, preds)
-    rmse = mean_squared_error(y_vl_r, preds) ** 0.5
-    r2   = r2_score(y_vl_r, preds)
+    model.fit(X_tr_r, y_tr_r)
+
+    preds_log = model.predict(X_vl_r)
+
+    y_true = np.expm1(y_vl_r)
+    y_pred = np.expm1(preds_log)
+
+    mae  = mean_absolute_error(y_true, y_pred)
+    rmse = mean_squared_error(y_true, y_pred) ** 0.5
+    r2   = r2_score(y_true, y_pred)
+
+    # Displaying the results to the user.
     reg_results[name] = {'mae': mae, 'rmse': rmse, 'r2': r2, 'model': model}
+
     print(f'  {name:<22}  MAE: {mae:.3f}  RMSE: {rmse:.3f}  R²: {r2:.3f}')
 
-# Best model on held-out test set
+# Select best model
 best_reg_name = min(reg_results, key=lambda k: reg_results[k]['rmse'])
 best_reg = reg_results[best_reg_name]['model']
-y_pred_reg = best_reg.predict(X_te_r_s)
 
-print(f'\nBest regression model: {best_reg_name}')
-print(f'  Test MAE:  {mean_absolute_error(y_te_r, y_pred_reg):.3f}')
-print(f'  Test RMSE: {mean_squared_error(y_te_r, y_pred_reg)**0.5:.3f}')
-print(f'  Test R²:   {r2_score(y_te_r, y_pred_reg):.3f}')
+# Test set evaluation
+preds_log_test = best_reg.predict(X_te_r)
 
-# K-fold cross-validation on best regression model
+y_true_test = np.expm1(y_te_r)
+y_pred_test = np.expm1(preds_log_test)
+
+print(f'Best regression model: {best_reg_name}') # Displaying the name of the best regression model to the user.  This is based on the results from the validation set. 
+breakLine()
+print(f'  Test MAE:  {mean_absolute_error(y_true_test, y_pred_test):.3f}') # Displaying the MAE of the best model to the user.
+print(f'  Test RMSE: {mean_squared_error(y_true_test, y_pred_test)**0.5:.3f}') # Displaying the RMSE of the best model to the user.
+print(f'  Test R²:   {r2_score(y_true_test, y_pred_test):.3f}') # Displaying the R squared of the best model to the user.
+
+# Putting the regression results into a dataframe for easier comparison and visualisation. I will use these results later.
+reg_eval_df = pd.DataFrame([
+    {
+        'Model': name,
+        'MAE': vals['mae'],
+        'RMSE': vals['rmse'],
+        'R²': vals['r2']
+    }
+    for name, vals in reg_results.items()
+])
+
+# Performing a 5-fold cross-validation test to evaluate the results of the best regression model.
 kf = KFold(n_splits=5, shuffle=True, random_state=42)
 cv_r2 = cross_val_score(best_reg, X_reg, y_reg, cv=kf, scoring='r2')
-print(f'\n5-fold CV R² — {best_reg_name}: '
+
+# COMMAND FOR USING SQUARED SYMBOL (CTRL + CMD + SPACE) and then find the symbol.
+breakLine()
+print(f'5-fold CV R² — {best_reg_name}: '
       f'{cv_r2.mean():.3f} ± {cv_r2.std():.3f}')
 
-# Actual vs predicted scatter plot
+# Plot (original scale)
 plt.figure(figsize=(8, 6))
-plt.scatter(y_te_r, y_pred_reg, alpha=0.4, color='steelblue', s=15)
-plt.plot([y_te_r.min(), y_te_r.max()],
-         [y_te_r.min(), y_te_r.max()], 'r--', lw=1.5,
-         label='Perfect prediction')
+plt.scatter(y_true_test, y_pred_test, alpha=0.4, s=15)
+plt.plot([y_true_test.min(), y_true_test.max()],
+         [y_true_test.min(), y_true_test.max()], 'r--', lw=1.5)
+
 plt.xlabel('Actual number of casualties')
 plt.ylabel('Predicted number of casualties')
 plt.title(f'Actual vs Predicted — {best_reg_name}')
-plt.legend()
 plt.grid(True, linestyle='--', alpha=0.4)
 plt.tight_layout()
 plt.show()
 
-# Residual plot — for error analysis
-residuals = y_te_r - y_pred_reg
-fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-axes[0].scatter(y_pred_reg, residuals, alpha=0.4, color='coral', s=15)
-axes[0].axhline(0, color='black', lw=1.5, linestyle='--')
-axes[0].set_xlabel('Predicted Values')
-axes[0].set_ylabel('Residuals')
-axes[0].set_title(f'Residual Plot — {best_reg_name}')
-axes[0].grid(True, linestyle='--', alpha=0.4)
+# Identifying any patterns in the residuals to check for non-lineratities within the data that may not have been captured by the model.
+residuals = y_true_test - y_pred_test
 
-sbn.histplot(residuals, bins=30, ax=axes[1], color='steelblue',
-             kde=True)
-axes[1].axvline(0, color='red', lw=1.5, linestyle='--')
-axes[1].set_title('Residual Distribution')
-axes[1].set_xlabel('Residual (Actual − Predicted)')
-
-plt.suptitle('Regression Error Analysis', fontsize=13)
-plt.tight_layout()
-plt.show()
-
-print(f'\nResidual analysis:')
-print(f'  Mean residual: {residuals.mean():.4f} (should be ≈ 0 for unbiased model)')
+# Displaying the residual analysis to the user.
+print(f'Residual analysis:')
+print(f'  Mean residual: {residuals.mean():.4f}')
 print(f'  Std residual:  {residuals.std():.4f}')
-
-# Regression model comparison chart
-reg_eval_df = pd.DataFrame([
-    {'Model': n, 'MAE': v['mae'], 'RMSE': v['rmse'], 'R²': v['r2']}
-    for n, v in reg_results.items()
-])
-print('\nRegression model comparison:')
-print(reg_eval_df.to_string(index=False))
-
-# Trend analysis: collisions per year
-yearly = df_reg.groupby('collision_year').size().reset_index(
-    name='collision_count')
-X_yr = yearly[['collision_year']]
-y_yr = yearly['collision_count']
-lr_trend = LinearRegression().fit(X_yr, y_yr)
-
-plt.figure(figsize=(10, 5))
-plt.bar(yearly['collision_year'], yearly['collision_count'],
-        color='steelblue', alpha=0.6, label='Actual')
-plt.plot(yearly['collision_year'], lr_trend.predict(X_yr),
-         'r--', lw=2, label='Trend (Linear Regression)')
-plt.xlabel('Year')
-plt.ylabel('Number of collisions')
-plt.title('Sheffield Road Collision Trend Over Time')
-plt.legend()
-plt.grid(True, linestyle='--', alpha=0.4)
-plt.tight_layout()
-plt.show()
-
-slope = lr_trend.coef_[0][0] if hasattr(lr_trend.coef_[0], '__len__') \
-    else lr_trend.coef_[0]
-direction = "decreasing" if slope < 0 else "increasing"
-print(f'\nTrend analysis: collisions are {direction} '
-      f'at {abs(slope):.1f} per year in Sheffield.')
-
-# Collision frequency by month. This shows the seasonal collision trends.
-if 'date' in df_reg.columns:
-    df_reg['month'] = pd.to_datetime(df_reg['date'], errors='coerce').dt.month
-    monthly = df_reg.groupby('month').size().reset_index(name='count')
-    plt.figure(figsize=(10, 4))
-    plt.bar(monthly['month'], monthly['count'], color='darkorange', alpha=0.8)
-    plt.xlabel('Month')
-    plt.ylabel('Number of collisions')
-    plt.title('Sheffield Collisions by Month (Seasonal Pattern)')
-    plt.xticks(range(1, 13),
-               ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
-    plt.grid(True, axis='y', linestyle='--', alpha=0.4)
-    plt.tight_layout()
-    plt.show()
 
 # Unsupervised Learning
 
@@ -1264,25 +1264,30 @@ if 'date' in df_reg.columns:
 # Responsible AI: clustering results are profiled and interpreted to provide
 # actionable road safety insights rather than opaque groupings.
 
-print("\n" + "=" * 70)
-print("7. UNSUPERVISED LEARNING — CLUSTERING")
+breakLine()
 print("=" * 70)
+print("Unsupervised Learning — Clustering")
+print("=" * 70)
+breakLine()
 
+# Loading in the dataset
 sheffield_df = pd.read_csv('Sheffield Collision Data Cleaned.csv')
 
+# Defining the features that I will use for clustering.
+# I have chosen these features based on my knowledge of road safety wihtin the Sheffield context, as well as based on the importance of these feautures within previous analytical tasks.
 cluster_features = [
     'number_of_casualties', 'number_of_vehicles', 'speed_limit',
     'road_type', 'weather_conditions', 'light_conditions',
     'road_surface_conditions', 'urban_or_rural_area'
 ]
-
+# I have also added the number of casualties and number of vehicles features as these are important for understanding the severity and scale of collisions.
 cluster_df = sheffield_df[cluster_features].copy().dropna()
-
+# Dropping any rows with N/A values (only rows within the clustering features that I selected above). This is just a precaution as I have already done several tests to confirm that there aren't any N/A values present within the dataset.
 for col in cluster_df.select_dtypes(include='object').columns:
-    cluster_df[col] = LabelEncoder().fit_transform(
+    cluster_df[col] = LabelEncoder().fit_transform( # Encoding the categorical features using Label Encoding.
         cluster_df[col].astype(str))
 
-scaler_unsup = StandardScaler()
+scaler_unsup = StandardScaler() # Using StandardScaler again here.
 X_cluster = scaler_unsup.fit_transform(cluster_df)
 
 print(f"Clustering dataset: {X_cluster.shape[0]} collisions, "
@@ -1290,7 +1295,7 @@ print(f"Clustering dataset: {X_cluster.shape[0]} collisions, "
 
 # The Elbow method + Silhouete scores to determine the optimal k value.
 inertias, sil_scores = [], []
-k_range = range(2, 11)
+k_range = range(2, 11) # Testing the K values from 2 to 10 to find the optimal number of clusters for KMeans.
 
 for k in k_range:
     km = KMeans(n_clusters=k, random_state=42, n_init=10)
@@ -1298,6 +1303,8 @@ for k in k_range:
     inertias.append(km.inertia_)
     sil_scores.append(silhouette_score(X_cluster, labels_k))
 
+# Plotting the Elbow method and Silhouette scores to visually determine the optimal k value for KMeans clustering.
+# The elbow method
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 axes[0].plot(k_range, inertias, marker='o', color='steelblue')
 axes[0].set_title('Elbow Method — Optimal k')
@@ -1305,17 +1312,21 @@ axes[0].set_xlabel('Number of clusters (k)')
 axes[0].set_ylabel('Inertia')
 axes[0].grid(True, linestyle='--', alpha=0.4)
 
+# The silhouette scores
 axes[1].plot(k_range, sil_scores, marker='o', color='darkorange')
 axes[1].set_title('Silhouette Score by k')
 axes[1].set_xlabel('Number of clusters (k)')
 axes[1].set_ylabel('Silhouette score')
 axes[1].grid(True, linestyle='--', alpha=0.4)
 
+# Titles and layout
 plt.suptitle('KMeans — Optimal Cluster Selection', fontsize=13)
 plt.tight_layout()
 plt.show()
 
+# Displaying the optimal K value based on the charts above. But in the terminal output.
 best_k = k_range[sil_scores.index(max(sil_scores))]
+breakLine()
 print(f'Optimal k (silhouette): {best_k}  '
       f'(score: {max(sil_scores):.3f})')
 
@@ -1324,18 +1335,24 @@ kmeans_final = KMeans(n_clusters=best_k, random_state=42, n_init=10)
 cluster_labels = kmeans_final.fit_predict(X_cluster)
 cluster_df['cluster'] = cluster_labels
 
-print(f'\nKMeans Silhouette Score (k={best_k}): '
+# Displaying the optimal silhouette score for the KMeans clustering. But in the terminal output again here.
+breakLine()
+print(f'KMeans Silhouette Score (k = {best_k}): '
       f'{silhouette_score(X_cluster, cluster_labels):.3f}')
-print('\nCluster sizes:')
+breakLine()
+print('Cluster sizes:')
 print(cluster_df['cluster'].value_counts().sort_index())
 
-# PCA projection for visualisation
+# Visualising the PCA projection of the clusters to understand the separation and variance.
 pca_unsup = PCA(n_components=2, random_state=42)
 X_2d = pca_unsup.fit_transform(X_cluster)
 pca_var = pca_unsup.explained_variance_ratio_
-print(f'\nPCA variance explained: PC1={pca_var[0]:.3f}, '
-      f'PC2={pca_var[1]:.3f} (total={sum(pca_var):.3f})')
+breakLine()
+print(f'PCA variance explained: PC1 = {pca_var[0]:.3f}, '
+      f'PC2 = {pca_var[1]:.3f} (total = {sum(pca_var):.3f})')
+breakLine()
 
+# Creating a scatter plot of the PCA projection of the clusters.
 fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 scatter = axes[0].scatter(X_2d[:, 0], X_2d[:, 1],
                           c=cluster_labels, cmap='tab10', s=12, alpha=0.6)
@@ -1345,7 +1362,7 @@ axes[0].set_xlabel(f'PC1 ({pca_var[0]:.1%} variance)')
 axes[0].set_ylabel(f'PC2 ({pca_var[1]:.1%} variance)')
 axes[0].grid(True, linestyle='--', alpha=0.3)
 
-# Cluster profiles heatmap
+# Creating a cluster profiles heatmap 
 cluster_df_orig = sheffield_df[cluster_features].copy().dropna()
 for col in cluster_df_orig.select_dtypes(include='object').columns:
     cluster_df_orig[col] = LabelEncoder().fit_transform(
@@ -1356,11 +1373,14 @@ sbn.heatmap(profile.T, annot=True, fmt='.1f', cmap='YlOrRd',
             ax=axes[1], annot_kws={'size': 8})
 axes[1].set_title('Cluster Profiles (Mean Feature Values)')
 
+# Titles and layout again, this is standard.
 plt.suptitle('KMeans Clustering Results', fontsize=13)
 plt.tight_layout()
 plt.show()
 
-print('\nCluster interpretation (Sheffield road safety):')
+# Displaying to the user, the interpretation of the clusters based on the average features and values within each cluster.
+breakLine()
+print('Cluster interpretation (Sheffield road safety):')
 for c in sorted(cluster_df_orig['cluster'].unique()):
     subset = cluster_df_orig[cluster_df_orig['cluster'] == c]
     avg_cas = subset['number_of_casualties'].mean()
@@ -1374,23 +1394,30 @@ for c in sorted(cluster_df_orig['cluster'].unique()):
 # DBSCAN is useful for identifying any organic accident hotspot regions as it doesn't make assumptions.
 # Labels returning as -1 here are known as "noise points" and they represent unusual collision types or circumstances.
 
-print('\n--- DBSCAN ---')
-dbscan = DBSCAN(eps=1.2, min_samples=10)
-db_labels = dbscan.fit_predict(X_cluster)
+breakLine()
+print('DBSCAN Clustering') # Starting to work on DBSCAN clustering.
+breakLine()
+dbscan = DBSCAN(eps=1.2, min_samples=10) # The eps parameter used here, defines the maximum distance between two samples for them to be considered as within the same "neighbourhood".
+db_labels = dbscan.fit_predict(X_cluster) # The min samples parameter specifies the maximum distance between two samples for them to be considered as within the same "neighbourhood".
 
+# Displaying the number of clusters found by DBSCAN, as well as the number of noise points (outliers) that were identified.
+# This gives me an understanding of the structure of the data and whether there are any obvious groupings or patterns.
 n_clusters_db = len(set(db_labels)) - (1 if -1 in db_labels else 0)
 n_noise = list(db_labels).count(-1)
-print(f'DBSCAN: clusters found={n_clusters_db}, noise points={n_noise} '
+print(f'DBSCAN: clusters found = {n_clusters_db}, noise points = {n_noise} '
       f'({100*n_noise/len(db_labels):.1f}%)')
 
 if n_clusters_db > 1:
     mask = db_labels != -1
     db_sil = silhouette_score(X_cluster[mask], db_labels[mask])
+    breakLine()
     print(f'DBSCAN Silhouette Score: {db_sil:.3f}')
+    breakLine()
 
 axes[0].scatter(X_2d[:, 0], X_2d[:, 1],
                 c=db_labels, cmap='tab10', s=12, alpha=0.5)
 
+# Displaying the PCA projection of the DBSCAN clusters so that I can visually understand the separation and variance of the clusters.
 fig, ax = plt.subplots(figsize=(9, 6))
 scatter_db = ax.scatter(X_2d[:, 0], X_2d[:, 1],
                         c=db_labels, cmap='tab10', s=12, alpha=0.5)
@@ -1407,64 +1434,84 @@ plt.show()
 # This method doesn't require me to specify the number of clusters in advance.
 # However, I have provided it with the best k value here (best_k) so that it will be a fari comparison to KMeans.
 
-print('\n--- Agglomerative Hierarchical Clustering ---')
-agg = AgglomerativeClustering(n_clusters=best_k, linkage='ward')
-agg_labels = agg.fit_predict(X_cluster)
+breakLine()
+print('Agglomerative Hierarchical Clustering') # Starting to work on Agglomerative clustering here.
+breakLine()
+agg = AgglomerativeClustering(n_clusters=best_k, linkage='ward') # The linkage parameter specifies the method used to calculate the distance between clusters.
+agg_labels = agg.fit_predict(X_cluster) # The "Ward" method minimises the variance within each cluster. This often leads to more compact and well-separated clusters.
 agg_sil = silhouette_score(X_cluster, agg_labels)
-print(f'Agglomerative Silhouette Score (k={best_k}): {agg_sil:.3f}')
+breakLine()
+print(f'Agglomerative Silhouette Score (k = {best_k}): {agg_sil:.3f}')
+breakLine()
 print(f'Agglomerative cluster sizes:')
-for lbl, cnt in zip(*np.unique(agg_labels, return_counts=True)):
+for lbl, cnt in zip(*np.unique(agg_labels, return_counts=True)): # Printing the size of each cluster that has been found by the agglomerative clustering algorithm.
     print(f'  Cluster {lbl}: {cnt} collisions')
 
+# More or less repeating the same process here to visualise the PCA projection of the Agglomerative clusters here.
 fig, ax = plt.subplots(figsize=(9, 6))
 scatter_agg = ax.scatter(X_2d[:, 0], X_2d[:, 1],
                          c=agg_labels, cmap='Set1', s=12, alpha=0.6)
 plt.colorbar(scatter_agg, ax=ax, label='Cluster')
-ax.set_title(f'Agglomerative Clustering (k={best_k}) — PCA Projection')
+ax.set_title(f'Agglomerative Clustering (k = {best_k}) — PCA Projection')
 ax.set_xlabel('PC1')
 ax.set_ylabel('PC2')
 ax.grid(True, linestyle='--', alpha=0.3)
 plt.tight_layout()
 plt.show()
 
-# Comparison of the clustering algorithms
+# Comparison of the clustering algorithms here
 clustering_comparison = {
     'KMeans':         silhouette_score(X_cluster, cluster_labels),
     'Agglomerative':  agg_sil,
 }
-if n_clusters_db > 1:
+if n_clusters_db > 1: # Only including DBSCAN in the comparison if it found more than 1 cluster (otherwise the silhouette score isn't meaningful).
     clustering_comparison['DBSCAN'] = db_sil
 
-print('\nClustering algorithm comparison (Silhouette Score):')
+breakLine()
+print('Clustering algorithm comparison (Silhouette Score):') # Printing the silhouette scores for each of the clustering algorithms to compare their performance.
 for algo, score in clustering_comparison.items():
     print(f'  {algo:<18}: {score:.3f}')
 
+# Identifying the best clustering algorithm based on the silhouette scores and displaying this to the user.
 best_cluster_algo = max(clustering_comparison, key=clustering_comparison.get)
-print(f'\nBest clustering algorithm: {best_cluster_algo}')
-print('Higher silhouette score = better-defined, more separated clusters.')
+breakLine()
+print(f'Best clustering algorithm: {best_cluster_algo}')
+print('Higher silhouette score = better defined, more separated clusters.')
 
 # Performance Evaluation and Analysis
 # Here, I aim to provide a comprehensive evaluation of each part of the model.
 # A misclassification analysis is performed here to understadn whereabouts the models fail.
 # This is very important as the predictions that are being made relate to safety.
 
-print("\n" + "=" * 70)
-print("8. PERFORMANCE EVALUATION SUMMARY")
+breakLine()
 print("=" * 70)
+print("Model Performance Evaluation and Analysis")
+print("=" * 70)
+breakLine()
+
+auc_p = None  # default value
+
+# ROC only makes sense if test set has 2 classes
+if len(np.unique(y_te_p)) == 2:
+    y_prob_pol = rf_pol.predict_proba(X_te_p_s)[:, 1]
+
+    fpr_p, tpr_p, _ = roc_curve(y_te_p, y_prob_pol)
+    auc_p = roc_auc_score(y_te_p, y_prob_pol)
 
 # Cross-task evaluation summary
-print("\nCross-Task Evaluation Summary:")
+print("Cross-Task Evaluation Summary:")
 summary = pd.DataFrame([
-    {'Task': 'A — Multiclass Severity',   'Best Model': best_mc_name,         'Metric': 'F1 Weighted', 'Score': round(mc_results[best_mc_name]['val_f1'], 3)},
+    {'Task': 'A — Multiclass Severity',    'Best Model': best_mc_name,         'Metric': 'F1 Weighted', 'Score': round(mc_results[best_mc_name]['val_f1'], 3)},
     {'Task': 'B — Urban/Rural Binary',    'Best Model': 'RF (GridSearchCV)',   'Metric': 'ROC-AUC',     'Score': round(auc_score, 3)},
     {'Task': 'C — Junction Detail',       'Best Model': 'Random Forest',       'Metric': 'F1 Weighted', 'Score': round(f1_score(y_te_c, cat_models['Random Forest'].predict(X_te_c_s), average='weighted'), 3)},
-    {'Task': 'D — Police Attendance',     'Best Model': 'Random Forest',       'Metric': 'ROC-AUC',     'Score': round(auc_p, 3)},
-    {'Task': 'Regression — Casualties',   'Best Model': best_reg_name,         'Metric': 'R²',          'Score': round(r2_score(y_te_r, y_pred_reg), 3)},
+    {'Task': 'D — Police Attendance',     'Best Model': 'Random Forest',       'Metric': 'ROC-AUC',     'Score': round(auc_p, 3) if auc_p is not None else 'N/A'},
+    {'Task': 'Regression — Casualties',   'Best Model': best_reg_name,         'Metric': 'R²',          'Score': round(r2_score(y_te_r, y_pred_test), 3)},
 ])
 print(summary.to_string(index=False))
 
 # Classification Summary table
-print("\nTask A — Multiclass Classification (collision_severity):")
+breakLine()
+print("Multiclass Classification (collision_severity):") # Printing the evaluation results for the multiclass classification task in a table format to the user.
 eval_rows = []
 for name, res in mc_results.items():
     model_obj = res['model']
@@ -1478,10 +1525,11 @@ for name, res in mc_results.items():
                                       average='macro'), 3),
     })
 
+# Putting the evaluation results into a dataframe for easier comparison and visualisation. I will use these results later.
 eval_df = pd.DataFrame(eval_rows)
 print(eval_df.to_string(index=False))
 
-# Visual comparison
+# Creating a visual comparison of the accuracy and F1 weighted scores for each of the multiclass classification models using a bar chart.
 fig, ax = plt.subplots(figsize=(10, 5))
 x_pos = range(len(eval_df))
 ax.bar([i - 0.2 for i in x_pos], eval_df['Accuracy'],
@@ -1491,18 +1539,19 @@ ax.bar([i + 0.2 for i in x_pos], eval_df['F1 Weighted'],
 ax.set_xticks(list(x_pos))
 ax.set_xticklabels(eval_df['Model'], rotation=15, ha='right')
 ax.set_ylabel('Score')
-ax.set_title('Task A — Multiclass Model Comparison')
+ax.set_title('Multiclass Model Comparison') # Adding title and labels to the bar chart.
 ax.set_ylim(0, 1)
 ax.legend()
 ax.grid(True, axis='y', linestyle='--', alpha=0.4)
 plt.tight_layout()
 plt.show()
 
-# Regression Summary
-print("\nRegression Model Comparison:")
+# Creating a regression summary table.
+breakLine()
+print("Regression Model Comparison:")
 print(reg_eval_df.to_string(index=False))
 
-# Bar chart for regression metrics
+# Creating a bar chart to visually compare the MAE and RMSE score for each of the regression models.
 fig, ax = plt.subplots(figsize=(10, 5))
 x_reg = range(len(reg_eval_df))
 ax.bar([i - 0.2 for i in x_reg], reg_eval_df['MAE'],
@@ -1518,18 +1567,25 @@ ax.grid(True, axis='y', linestyle='--', alpha=0.4)
 plt.tight_layout()
 plt.show()
 
-# Clustering Summary
-print(f'\nClustering Evaluation:')
+# Displaying a clustering summary to the user.
+# This aims to provide a comprehensive evaluation of the clustering results and compare the different algorithms that were used.
+breakLine()
+print(f'Clustering Evaluation:')
+breakLine()
 print(f'  KMeans (k={best_k}): '
       f'Silhouette={silhouette_score(X_cluster, cluster_labels):.3f}, '
       f'Inertia={kmeans_final.inertia_:.1f}')
+breakLine()
 print(f'  Agglomerative (k={best_k}): Silhouette={agg_sil:.3f}')
+breakLine()
 if n_clusters_db > 1:
     print(f'  DBSCAN: Silhouette={db_sil:.3f}, Noise={n_noise}')
+    breakLine()
 print('  Interpretation: silhouette > 0.5 = strong cluster separation')
 
 # Misclassification Analysis
-print('\nMisclassification Analysis (Task A — Best Model):')
+breakLine()
+print('Misclassification Analysis - Best Model):')
 misclassified = X_test_mc.copy()
 misclassified['actual'] = y_test_mc.values
 misclassified['predicted'] = y_pred_mc
@@ -1537,34 +1593,41 @@ errors = misclassified[misclassified['actual'] != misclassified['predicted']]
 rate = len(errors) / len(misclassified) * 100
 
 print(f'  Misclassification rate: {rate:.1f}%')
-print('  Most common error pairs (actual → predicted):')
+breakLine()
+print('  Most common error pairs (actual/predicted):')
+breakLine()
 error_pairs = errors.groupby(
     ['actual', 'predicted']).size().sort_values(ascending=False).head(5)
 print(error_pairs.to_string())
-print('\n  Responsible AI interpretation:')
-print('  Slight→Serious misclassifications are more dangerous than')
-print('  Serious→Slight, as they underestimate injury risk.')
-print('  Model should be validated by road safety experts before deployment.')
+breakLine()
+print('  Responsible AI Notes:')
+breakLine()
+print('  Slight to Serious misclassifications are more dangerous than')
+print('  Serious to Slight, as they underestimate injury risk.')
+print('  The model would need to be validated by road safety experts before deployment.')
 
 # Innovation
 
-print("\n" + "=" * 70)
-print("9. INNOVATION & BEYOND")
+breakLine()
 print("=" * 70)
+print("Innovation")
+print("=" * 70)
+breakLine()
+
 
 # PCA - Dimensionality Reduction
 # Here, PCA simplifies the dataset by reducing high-dimensional features.
 #This is applied to the full set of features before modelling, acting as an alternative pipeline.
 # This should result in faster training times as it removes correlated features.
 
-print("\n--- 9.1 PCA Dimensionality Reduction ---")
+print("PCA Dimensionality Reduction") # Working on Dimensionality reduction for PCA.
 
 pca_df = df.drop(columns=['collision_index', 'collision_ref_no'],
-                 errors='ignore').dropna(
+                 errors='ignore').dropna(       # Dropping any of the N/A values. Of which there are none but this is a precaution, again.
     subset=multiclass_features + ['collision_severity']
 ).copy()
 
-for col in pca_df.select_dtypes(include='object').columns:
+for col in pca_df.select_dtypes(include='object').columns:  # 
     pca_df[col] = LabelEncoder().fit_transform(pca_df[col].astype(str))
 
 X_pca_full = pca_df[multiclass_features]
@@ -1596,7 +1659,7 @@ plt.tight_layout()
 plt.show()
 
 print(f'Components needed to explain 95% variance: {n_components_95}')
-print(f'Original features: {len(multiclass_features)} → '
+print(f'Original features: {len(multiclass_features)} - '
       f'reduced to {n_components_95} components')
 
 # Comparing the performance of RF both with and without PCA
@@ -1612,9 +1675,9 @@ rf_pca.fit(X_tr_pca, y_tr_pca)
 f1_pca = f1_score(y_te_pca, rf_pca.predict(X_te_pca), average='weighted')
 f1_orig = mc_results[best_mc_name]['val_f1']
 
-print(f'\nRF with PCA ({n_components_95} components): F1={f1_pca:.3f}')
-print(f'RF without PCA ({len(multiclass_features)} features): F1={f1_orig:.3f}')
-print('PCA trades a small accuracy reduction for faster training and less overfitting.')
+print(f'RF with PCA ({n_components_95} components): F1 score = {f1_pca:.3f}')
+print(f'RF without PCA ({len(multiclass_features)} features): F1 score = {f1_orig:.3f}')
+print('Here, PCA trades a small accuracy reduction for faster training and less overfitting.')
 
 # Geospatial Visualisation - A map of the collision hotspots.
 # Here, we can see an interactive map of the collision locations in Sheffield.
@@ -1655,7 +1718,8 @@ if len(geo_df) > 0:
         ax.scatter(geo_df['longitude'], geo_df['latitude'],
                    s=5, alpha=0.3, color='steelblue')
 
-    ax.set_title('Sheffield Road Collision Hotspot Map\n'
+# Creating a hotspot map for the collisions.
+    ax.set_title('Sheffield Road Collision Hotspot Map'
                  '(colour = severity: blue=Slight, orange=Serious, red=Fatal)',
                  fontsize=12)
     ax.set_xlabel('Longitude')
@@ -1667,7 +1731,8 @@ if len(geo_df) > 0:
     print(f"Geospatial map plotted for {len(geo_df):,} collisions in Sheffield.")
     print("Red dots indicate fatal collisions — these cluster around major arterial roads.")
 
-    # Interactive Plotly map
+
+    # Creating an interactive heatmap using plotly.
     try:
         if 'collision_severity' in geo_df.columns:
             fig_geo = px.scatter_mapbox(
@@ -1694,13 +1759,14 @@ if len(geo_df) > 0:
         print(f"  (Interactive map skipped: {e})")
 else:
     print("  No valid geospatial data found — check latitude/longitude columns.")
+# The map above should open in a google chrome window automatically.
 
 # Explainable AI - Detailed Feature Importance Analysis.
 
 # This shows extended feature importance analysis with added contextual interpretation.
 # This also demonstrates responsible AI which enables road safety stakeholders to trust the model outputs and therefore, potentially act on them.
 
-print("\n--- 9.3 Explainable AI — Feature Importance Analysis ---")
+print("Explainable AI — Feature Importance Analysis")
 
 if hasattr(best_mc, 'feature_importances_'):
     feat_imp_series = pd.Series(
@@ -1708,6 +1774,7 @@ if hasattr(best_mc, 'feature_importances_'):
         index=multiclass_features
     ).sort_values(ascending=True)
 
+    # Creating a bar chart here.
     plt.figure(figsize=(10, 7))
     colours = ['#d73027' if v > feat_imp_series.median() else '#4575b4'
                for v in feat_imp_series.values]
@@ -1721,13 +1788,17 @@ if hasattr(best_mc, 'feature_importances_'):
     plt.tight_layout()
     plt.show()
 
-    print('\nFeature importance interpretation for Sheffield road safety:')
+    # Displaying the features in order of importance.
+    print('Feature importance interpretation for Sheffield road safety:')
+    breakLine()
     sorted_feats = feat_imp_series.sort_values(ascending=False)
     for feat, imp in sorted_feats.items():
         stars = '●' * int(imp / sorted_feats.max() * 5 + 0.5)
         print(f'  {feat:<35} {stars} ({imp:.4f})')
 
-    print('\nKey insights:')
+    # Adding some brief key insights to the findings
+    print('Key insights:')
+    breakLine()
     top3 = sorted_feats.head(3).index.tolist()
     print(f'  Top 3 predictors: {", ".join(top3)}')
     print('  These features should be prioritised in road safety interventions.')
@@ -1735,8 +1806,7 @@ if hasattr(best_mc, 'feature_importances_'):
     print('  suggesting targeted speed management could reduce severity.')
 
 # Correlation with engineered features.
-
-print("\n--- 9.4 Engineered Feature Correlation Analysis ---")
+print("Engineered Feature Correlation Analysis ---")
 
 eng_cols = ['risk_score', 'casualty_per_vehicle',
             'speed_urban_interaction', 'is_weekend', 'high_speed_zone']
@@ -1755,10 +1825,13 @@ if len(available_eng) > 1:
 # This is for the model on the whole as well as my findings from the results.
 # I will talk more about these within my presentation if I have the time. 
 
-print("\n" + "=" * 70)
-print("10. FINAL INSIGHTS & CONCLUSIONS — SHEFFIELD ROAD COLLISIONS")
+breakLine()
 print("=" * 70)
+print("My Final Insights & Conclusions for the project")
+print("=" * 70)
+breakLine()
 
+# These will be displayed to the user in the terminal
 print("""
 CLASSIFICATION FINDINGS:
   1. Speed limit is one of the strongest predictors of collision severity.

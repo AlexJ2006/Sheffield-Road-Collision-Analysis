@@ -80,7 +80,7 @@ Once again, as for the section above, the columns showed that they had very few 
 
 
 * Outlier Detection (IQR Method)
-
+ ENTER IMAGE
 
 
 
@@ -182,14 +182,132 @@ Moving the the bottom middle image, we can see that the majority of collisions o
 
 Finally, moving to the bottom right image, we can see that the number of collisions has in fact reduced over the last 40 years. This is almost certainly due to the new road safety measures and modern technolgy within cars that actually prevent them from crashing. For example, asissted/automated driving. This could also be due to stricter driving tests making for a higher standard driving across the country. This was a very interesting and surprising result for me as I didn't believe this would be the case. This was something that I hilighted earlier..
 
-# Supervised Learning
-
 * Correlation Matrix (all features)
+
+Below is a correlation matrix for all of the featues within the dataset. I will explain some of the key features that are related to each other, below the image.
+
+![Correlation Matrix For all of the features in the dataset](Results/Feature-Correlation-Matrix/Feature-Correlation-Matrix.png)
+
+# Supervised Learning
 
 * Confusion Matrix (MultiClass Severity)
 
+-------------------------------------------------------------------------------------------------
+![Confusion Matrix for Multiclass Severity](Results/Feature-Correlation-Matrix/Feature-Correlation-Matrix.png)
+-------------------------------------------------------------------------------------------------
+
 * Top 10 Featrure Importances - Gradient Boosting
+
+![Top 10 Feature Importances](Results/Gradient-Boosting/Features-Ranked-By-Importance.png)
 
 * Multiclass Model Comparison
 
+![A bar chart for the comparison of the MultiClass Models](Results/Multiclass-Classification/Multiclass-Model-Comparison.png)
 
+* ROC Curve - Binary Classification
+
+![ROC Curve - Binary Classification](Results/urban_or_rural_area/ROC-Curve-Rural-vs-Urban.png)
+
+* Confusion Matrix - Urban/Rural
+
+![Confusion Matrix - Urban vs Rural](Urban/Rural-Confusion-Matrix.png)
+
+* Confusion Matrix - Junction Detail
+
+![Confusion Matrix - Junction Detail](Results/Junction-Detail/Junction-detail-confusion-matrix.png)
+
+# Regression Analysis
+
+* Actual Vs Predicted (Gradient Boosting)
+
+![Actual Vs Predicted (Gradient Boosting)](Results/Junction-Detail/Junction-detail-confusion-matrix.png) # NEEDS LINKING TO CORRECT IMAGE
+
+# Unsupervised Learning
+
+* KMeans Elbow & Silhouette Score
+
+![KMeans Elbow, optimal K & Silhouette Score](Results/KMeans-optimal-values-elbow-silhouette/kmeans-cluster-optimal-silhouette-and-elbow.png)
+
+* KMeans Clustering Results
+
+![KMeans Clustering Results](Results/KMeans-clustering-results/kmeans-clustering-results.png)
+
+* DBSCAN Clusters For PCA Projection
+
+![DBSCAN Clusters](Results/DBSCAN/DBSCAN-PCA-projection.png)
+
+* Agglomerative Clustering
+
+![Agglomerative Clustering](Results/Agglomerative-Clustering/Agglomerative-clustering-pca-projection.png)
+
+# Model Performance & Evaluation
+
+* Multiclass Model Comparison
+
+![Multiclass Model Comparison](Results/Multiclass-Classification/Multiclass-Model-Comparison.png)
+
+* Regression Model Comparison (MAE & RMSE)
+
+![Regression Model Comparison for MAE and RMSE](Results/Regression-model-comparison/Regression-model-comparison-mae-rmse.png)
+
+# Innovative Work
+
+* PCA - Cumulative Variance Explained
+
+![PCA Cumulative Variance]()
+
+* Sheffield Collision Heatmap - Static (Not Interactive)
+
+![Sheffield Collision Heatmap - Static]()
+
+* Feature Importance (Gradient Boosting)
+
+![Feature Importance - Gradient Boosting]()
+
+* Engineered Feature Correlations - including a casualty count
+
+![Engineered Feature Correlations]()
+
+* Seasonal Collision Trends
+
+![Seasonal Collision Trends](Results/Seasonal-collision-trends/seasonal-collision-trend.png)
+
+# Overall Summary & Conclusion
+
+
+
+
+
+# Any other graphs that I initially created...
+
+LEFT TO DO:
+
+OUTLIER IQR METHOD - PREPROCESSING
+CORRELATION MATRIX - FEATURE ENGINEERING
+
+CONFUSION MATRIX (GRADIENT BOOSTING)- SUPERVISED LEARNING
+TOP 10 FEATURE IMPORTANCES - SUPERVISED LEARNING
+MULTICLASS MODEL COMPARISON - SUPERVISED LEARNING
+ROC CURVE (URBAN VS RURAL) - SUPERVISED LEARNING
+CONFUSION MATRIX (URBAN/RURAL) - SUPERVISED LEARNING
+CONFUSION MATRIX (JUNCTION DETAIL) - SUPERVISED LEARNING
+
+ACTUAL VS PREDICTED (GRADIENT BOOSTING) - REGRESSION ANALYSIS
+
+KMEANS ELBOW & SILHOUETTE SCORE - UNSUPERVISED LEARNING (CLUSTERING)
+KMEANS CLUSTERING RESULTS - UNSUPERVISED LEARNING
+DBSCAN CLUSTERS (PCA PROJECTION) - UNSUPERVISED LEARNING
+AGGLOMERATIVE CLUSTERING (PCA PROJECTION) - UNSUPERVISED LEARNING
+
+MULTICLASS MODEL COMPARISON - MODEL PERFORMANCE AND EVALUATION
+REGRESSION MODEL COMPARISON (MAE & RMSE) - MODEL PERFORMANCE AND EVALUATION
+
+PCA - CUMULATIVE VARIANCE EXPLAINED - INNOVATION
+SHEFFIELD COLLISION HEATMAP (NOT INTERACTIVE) - INNOVATION
+FEATURE IMPORTANCE (GRADIENT BOOSTING) - INNOVATION
+ENGINEERED FEATURE CORRELATIONS WITH CASUALTY COUNT - INNOVATION
+SEASONAL COLLISION TREND
+
+OVERALL SUMMARY/CONCLUSION
+
+OTHER RANDOM GRAPH IMAGES

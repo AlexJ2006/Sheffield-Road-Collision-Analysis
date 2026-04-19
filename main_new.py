@@ -887,7 +887,7 @@ X_te_b_s  = scaler_bin.transform(X_te_b)
 param_grid = {'n_estimators': [50, 100, 200], 'max_depth': [5, 10, None]} # Defining a small grid of hyperparameters for the Random Forest model to search over. This includes different numbers of trees (n_estimators) and different maximum depths for the trees (max_depth). This allows me to find the best combination of these hyperparameters.
 rf_grid = GridSearchCV(
     RandomForestClassifier(random_state=42),
-    param_grid, cv=5, scoring='f1', n_jobs=-1, verbose=0)
+    param_grid, cv=5, scoring='f1', n_jobs=1, verbose=0)
 rf_grid.fit(X_tr_b_s, y_tr_b)
 
 breakLine()

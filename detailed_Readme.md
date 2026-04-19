@@ -80,9 +80,8 @@ Once again, as for the section above, the columns showed that they had very few 
 
 
 * Outlier Detection (IQR Method)
- ENTER IMAGE
 
-
+![Outlier Detection using the IQR Method](Results/IQR/IQR-Graphs.png)
 
 
 
@@ -192,9 +191,7 @@ Below is a correlation matrix for all of the featues within the dataset. I will 
 
 * Confusion Matrix (MultiClass Severity)
 
--------------------------------------------------------------------------------------------------
-![Confusion Matrix for Multiclass Severity](Results/Feature-Correlation-Matrix/Feature-Correlation-Matrix.png)
--------------------------------------------------------------------------------------------------
+![Confusion Matrix for Multiclass Severity](Results/Multiclass-Classification/Confusion-Matrix-Multiclass-Severity.png)
 
 * Top 10 Featrure Importances - Gradient Boosting
 
@@ -220,7 +217,7 @@ Below is a correlation matrix for all of the featues within the dataset. I will 
 
 * Actual Vs Predicted (Gradient Boosting)
 
-![Actual Vs Predicted (Gradient Boosting)](Results/Junction-Detail/Junction-detail-confusion-matrix.png) # NEEDS LINKING TO CORRECT IMAGE
+![Actual Vs Predicted (Gradient Boosting)](Actual-vs-predicted-Ridge.png)
 
 # Unsupervised Learning
 
@@ -254,27 +251,29 @@ Below is a correlation matrix for all of the featues within the dataset. I will 
 
 * PCA - Cumulative Variance Explained
 
-![PCA Cumulative Variance]()
+![PCA Cumulative Variance](Results/PCA-Cumulative-Variance.png)
 
-* Sheffield Collision Heatmap - Static (Not Interactive)
+* Sheffield Collision Heatmap
 
-![Sheffield Collision Heatmap - Static]()
+![Sheffield Collision Heatmap - Static Version](Results/Heatmap-without-opening-chrome.png)
+
+![Sheffield Collision Heatmap - Interactive Mode 1 inactive](Results/Interactive-collision-heatmap/interactive-map-inactive.png)
+
+![Sheffield Collision Heatmap - Interactive Mode 2 active](Results/Interactive-collision-heatmap/interactive-map-active.png)
 
 * Feature Importance (Gradient Boosting)
 
-![Feature Importance - Gradient Boosting]()
+![Feature Importance - Gradient Boosting](Results/Feature-Importance/feature-importnace-gradient-boosting.png)
 
 * Engineered Feature Correlations - including a casualty count
 
-![Engineered Feature Correlations]()
+![Engineered Feature Correlations](Results/Engineered-feature-correlations.png)
 
 * Seasonal Collision Trends
 
 ![Seasonal Collision Trends](Results/Seasonal-collision-trends/seasonal-collision-trend.png)
 
 # Overall Summary & Conclusion
-
-
 
 
 

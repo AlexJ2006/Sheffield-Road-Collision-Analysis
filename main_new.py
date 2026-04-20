@@ -1683,7 +1683,7 @@ print('Here, PCA trades a small accuracy reduction for faster training and less 
 # Here, we can see an interactive map of the collision locations in Sheffield.
 # Furthermore, the map is colour-coordinated by severity so that the reader can quickly interpret the results.
 
-print("\n--- 9.2 Geospatial Collision Hotspot Analysis ---")
+print("9.2 Geospatial Collision Hotspot Analysis")
 
 geo_df = pd.read_csv('Sheffield Collision Data Cleaned.csv')
 
@@ -1720,7 +1720,7 @@ if len(geo_df) > 0:
 
 # Creating a hotspot map for the collisions.
     ax.set_title('Sheffield Road Collision Hotspot Map'
-                 '(colour = severity: blue=Slight, orange=Serious, red=Fatal)',
+                 '(colour = severity: blue = Fatal, orange = Serious, red = Slight)',
                  fontsize=12)
     ax.set_xlabel('Longitude')
     ax.set_ylabel('Latitude')
@@ -1741,8 +1741,8 @@ if len(geo_df) > 0:
                 lon='longitude',
                 color='severity_label' if 'severity_label' in geo_df.columns
                       else 'collision_severity',
-                color_discrete_map={'Slight': 'blue', 'Serious': 'orange',
-                                    'Fatal': 'red'},
+                color_discrete_map={'Fatal': 'blue', 'Serious': 'orange',
+                                    'Slight': 'red'},
                 size='number_of_casualties'
                      if 'number_of_casualties' in geo_df.columns else None,
                 size_max=15,

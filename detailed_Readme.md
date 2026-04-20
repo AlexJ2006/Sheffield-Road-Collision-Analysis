@@ -223,6 +223,8 @@ This is followed by the Decision tree model which drops ahain and then finally b
 
 ![Confusion Matrix - Urban vs Rural](Urban/Rural-Confusion-Matrix.png)
 
+The confusion matrix above for Urban vs rural prediction shows that the model performs very well when predicting urban collisions. However, it is much less effective when predicting rural collisions. This therefore means that there is a class imbalance present. Therefore, I may need to work on some additional oversampling or using a larger sample or rural data. The issue here could simply be that there isn't much rural data within teh dataset as the majority of sheffield is contained within the city. Therefore, most of the traffic will be within the city center meaning most of the accidents occur in an urban area rather than a rural one.
+
 * Confusion Matrix - Junction Detail
 
 ![Confusion Matrix - Junction Detail](Results/Junction-Detail/Junction-detail-confusion-matrix.png)
@@ -233,23 +235,41 @@ This is followed by the Decision tree model which drops ahain and then finally b
 
 ![Actual Vs Predicted (Gradient Boosting)](Actual-vs-predicted-Ridge.png)
 
+The actual vs predicted ridge regression model (the image shown above), depicts a clear pattern. The red dashed line represents a perfect preiction, where the actual and predicted values are identical. It is clear from the chart that the model's predictions are heavily clustered in a narrow band between 1 and 2 on the predicted axis. This is the same throughout the graph. This means that no matter how many casualties were actually involved in a collision, the models tends to predict a value of somewhere betweeen 1 and 2. This leads me to believe that the model is struggling to predict the full range of the target variable that I had provided. As we can see, when the number of casualties is 2, the model performs relatively well. However, it then drops off further and further away from the perfrect prediction line as the number of casualties increases.
+
 # Unsupervised Learning
 
 * KMeans Elbow & Silhouette Score
 
 ![KMeans Elbow, optimal K & Silhouette Score](Results/KMeans-optimal-values-elbow-silhouette/kmeans-cluster-optimal-silhouette-and-elbow.png)
 
+Looking at graph on the left of the image above (depicting the elbow method). It is clear that the trend drops significantly between K2 and K5, after this point, the rate of decrease starts to drop and the line begins to even out a bit more. This shows us our "elbow". In this case, the elbow isn't especially sharp which make it quite difficult to identify a specific optimal K value here. Therefore, I have included the silhouette score alognside the graph. 
+
+Looking at the silhouette score on the right of the image, we can see that the scores fluctuate between K2 and K9. However, they reach their peak at K10 with a score of just under 0.26. There are some other obvious peaks throughout the graph for example at K4, the graph doesn't go any higher than this until K8 when it surpasses its previous record height. Based on this graph, I then chose K10 as my optimal K value.
+
 * KMeans Clustering Results
 
 ![KMeans Clustering Results](Results/KMeans-clustering-results/kmeans-clustering-results.png)
+
+The image above shows the Kmeans clustering results including the PCA projection and a heatmap of the cluster profiles.
+
+The KMeans clustering results produced ten clusters with some interesting patterns. The most notable cluster within the group was cluster eight.This showed an average casualty count of 3.8. This is significantly higher than all of the other clusters which sat between 1 and 1.4. Cluster eight also had one of the highest vehicle counts at 2.2. It is clear from these statistics that this cluster was representing some of the most severe collisions within the dataset.
+
+Cluster nine also looked at more severe collisions with an average speed_limit of 61.7mph. This directly alligns with my high_speed_zone feature and suggests that these collisions picked up here may have occured on dual carraigeways or motorways. Therefore, these types of collisions are more likely to be more severe even though there are less of them. 
+
+Looking at the PCA projection graph on the left of the image, we can see that cluster 8 has more widespread datapoints than most.
 
 * DBSCAN Clusters For PCA Projection
 
 ![DBSCAN Clusters](Results/DBSCAN/DBSCAN-PCA-projection.png)
 
+The image above shows the DBSCAN PCA Projection using clusters. This is noticeably different from the KMeans cluster that I have already mentioned. The vast majority of the points within this graph appear in a dark blue colour, this represents the largest singel cluster which is clusters 0-10 on the key. The points are spread across the projection rather than forming in specific regions. This leads me to believe that the DBSCAN found a very large number of small, specific clusters rather than small groups which would sit in specific areas. The center-left of the graph is the most densely packed area.
+
 * Agglomerative Clustering
 
 ![Agglomerative Clustering](Results/Agglomerative-Clustering/Agglomerative-clustering-pca-projection.png)
+
+Moving on to the Agglomerative Clustering graph. This is the clearest of the three clustering results. With the clusters shown in completely different colours, it is easier to see the separation between the groups and wherabouts they sit on the graph. There is still a large overlap between several of the clusters here especially clusters 0 to 4. some of the clusters such as cluster 8 (the pink cluster) spread themselves out more, allowing for more distance between them and the main grouping at the center left of the graph.
 
 # Model Performance & Evaluation
 
@@ -267,8 +287,10 @@ This is followed by the Decision tree model which drops ahain and then finally b
 
 ![PCA Cumulative Variance](Results/PCA-Cumulative-Variance.png)
 
-* Sheffield Collision Heatmap
+The graph above shows the PCA cumulative variance chart. This shows how much of the total information within the dataset is captured as more pricioiple components were added. On the graph, starting from one component which explained just above 0.2 (roughly 20%) of the variance. This increases dramatically throughout the chart until it reaches 10 principal components when it has passed the variance threshold and it begins to plateu through 11 and 12.
 
+* Sheffield Collision Heatmap
+One of the charts that I generated that I found most intersting was the heatmap of the ollisions that occured within Sheffield. For this, I have two different heatmaps. The first heatmap is not interactive and it shows the collisions that occcured, categorised.
 ![Sheffield Collision Heatmap - Static Version](Results/Heatmap-without-opening-chrome.png)
 
 ![Sheffield Collision Heatmap - Interactive Mode 1 inactive](Results/Interactive-collision-heatmap/interactive-map-inactive.png)
@@ -279,13 +301,19 @@ This is followed by the Decision tree model which drops ahain and then finally b
 
 ![Feature Importance - Gradient Boosting](Results/Feature-Importance/feature-importnace-gradient-boosting.png)
 
+The graph above clearly shows that speed_limit is the most impotant factor during prediction. This has an importance score of roughly 0.16. This is shown in red on the graph as it sits above the median importance threshold (which is marked by the dashed line running vertically through the center of the graph). All of the features that are shown in red on the graph are of high importance to the model whilst predicting. We can see features here such as number_of_vehicles, day_of_week, number_of_casualties and urban_or_rural_area. These echo what we saw earlier in the other feature importance chart. As for the features displayed in blue, thes are of less importance when predicting. Again here, these echo what we saw earlier with the previous "Top 10 feature Importances" graph. I am happy to see similar results here.
+
 * Engineered Feature Correlations - including a casualty count
 
 ![Engineered Feature Correlations](Results/Engineered-feature-correlations.png)
 
+The image above shows the feature correlation heatmap which depicts the relationships between three of the features that I have engineered. These features are "is_weekend", "high_speed_zone" and "risk_score". From the graph, we can see that the high_speed_zone has the highest realtion to numer_of_casualties. This is to be expected as a higher speed would usually indicate a more severe collision (involving more casualties). None of the other featues seem to have a very strong relation to one another. With is_weekend showing a relation of just 0.02 with number_of_casualties. This confirms what I found earlier within the feature engineering setion. What I found was that whether or not a collision occurs on a weekend or a weekday has very little impact on the severity of the collison (how many casualties there are). This makes sense to me as the day of the week does not make a collision more severe. It may change the external factors (such as more traffic at certain times of the day), which could result in more collision. But it does not make a collision more severe.
+
 * Seasonal Collision Trends
 
 ![Seasonal Collision Trends](Results/Seasonal-collision-trends/seasonal-collision-trend.png)
+
+Looking at the seasonal collision trends bar chart above, we can see that throughout the year, the number of collisions remains relatively similar dipping or increasing slightly throughout the first few months of the year. One of the most prominent months here is december as it contains the highest number of collisions. This could be due to more people travelling for their christmas break, christmas itself visiting family or people making thier way to events on the final day of december before new years. There could also be certain environmental factors at play here as during the winter months, it could be icy. This could result in a higher number of crashes. These may not be driver error. It was interesting to me to see that throughout the year the collisions remain somewhat even as I initially believed there would be more collisions throughout the summer months. However, my findings of December being the month with the most collisions does make sense to me.
 
 # Overall Summary & Conclusion
 
@@ -297,25 +325,11 @@ LEFT TO DO:
 
 ROC CURVE (URBAN VS RURAL) - SUPERVISED LEARNING
 
-CONFUSION MATRIX (URBAN/RURAL) - SUPERVISED LEARNING
-
 CONFUSION MATRIX (JUNCTION DETAIL) - SUPERVISED LEARNING
 
-ACTUAL VS PREDICTED (GRADIENT BOOSTING) - REGRESSION ANALYSIS
-
-KMEANS ELBOW & SILHOUETTE SCORE - UNSUPERVISED LEARNING (CLUSTERING)
-KMEANS CLUSTERING RESULTS - UNSUPERVISED LEARNING
-DBSCAN CLUSTERS (PCA PROJECTION) - UNSUPERVISED LEARNING
-AGGLOMERATIVE CLUSTERING (PCA PROJECTION) - UNSUPERVISED LEARNING
-
 MULTICLASS MODEL COMPARISON - MODEL PERFORMANCE AND EVALUATION
-REGRESSION MODEL COMPARISON (MAE & RMSE) - MODEL PERFORMANCE AND EVALUATION
 
-PCA - CUMULATIVE VARIANCE EXPLAINED - INNOVATION
-SHEFFIELD COLLISION HEATMAP (NOT INTERACTIVE) - INNOVATION
-FEATURE IMPORTANCE (GRADIENT BOOSTING) - INNOVATION
-ENGINEERED FEATURE CORRELATIONS WITH CASUALTY COUNT - INNOVATION
-SEASONAL COLLISION TREND
+REGRESSION MODEL COMPARISON (MAE & RMSE) - MODEL PERFORMANCE AND EVALUATION
 
 OVERALL SUMMARY/CONCLUSION
 

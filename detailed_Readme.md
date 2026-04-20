@@ -290,13 +290,18 @@ Moving on to the Agglomerative Clustering graph. This is the clearest of the thr
 The graph above shows the PCA cumulative variance chart. This shows how much of the total information within the dataset is captured as more pricioiple components were added. On the graph, starting from one component which explained just above 0.2 (roughly 20%) of the variance. This increases dramatically throughout the chart until it reaches 10 principal components when it has passed the variance threshold and it begins to plateu through 11 and 12.
 
 * Sheffield Collision Heatmap
-One of the charts that I generated that I found most intersting was the heatmap of the ollisions that occured within Sheffield. For this, I have two different heatmaps. The first heatmap is not interactive and it shows the collisions that occcured, categorised. I found this idea really interesting as it gave me a clear visualisation of actually where the collisions had occurec, geographically. This was the easiest to interpret, especially on the interactive map which I will discuss below.
+One of the charts that I generated that I found most intersting was the heatmap of the ollisions that occured within Sheffield. For this, I have two different heatmaps. The first heatmap is not interactive and it shows the collisions that occcured, categorised. I found this idea really interesting as it gave me a clear visualisation of actually where the collisions had occurec, geographically. This was the easiest to interpret, especially on the interactive map which I will discuss below.s
+
 ![Sheffield Collision Heatmap - Static Version](Results/Heatmap-without-opening-chrome.png)
+
 The image above shows the static version of the heatmap (that isn't interactive). This just provides clusters of points that with a map behind them, would be grographically accurate.
 
 ![Sheffield Collision Heatmap - Interactive Mode 1 inactive](Results/Interactive-collision-heatmap/interactive-map-inactive.png)
+
 Initially, when I created my heatmap, I allocated the wrong labels to the wrong colours. This has now been fixed (as seen in the image above). However, for the image below, the I decided to leave this so I could show the heatmap being interactive and how I fixed the issue. I felt as if this was an important moment of learning as I had been careless here and made a silly error which meant that the data represented within my graph was entirely inaccurate. When the map has been activated (the user has hovered over one of the points), a pop up will display information for that specific accident. I will provide another example of this (with the fixed colour scheme), below the red one.
+
 ![Sheffield Collision Heatmap - Interactive Mode 2 active](Results/Interactive-collision-heatmap/interactive-map-active.png)
+
 ![Sheffield Collision Heatmap - Interactive Mode 2 active - Fixed](Results/Interactive-collision-heatmap/interactive-collision-heatmap-fixed-active.png)
 
 * Feature Importance (Gradient Boosting)

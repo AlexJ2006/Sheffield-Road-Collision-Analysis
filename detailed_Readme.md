@@ -80,28 +80,15 @@ Once again, as for the section above, the columns showed that they had very few 
 
 
 * Outlier Detection (IQR Method)
+Below are the charts generated using the IQR outlier detection method. I will now explain these results in further detail.
 
 ![Outlier Detection using the IQR Method](Results/IQR/IQR-Graphs.png)
 
+Starting from the left, the chart shows the number of casualties per incident. The. line at the bottom of the chart represents the median value of the column "number_of_casualties". We can see that thi svalue is likely to be 1. The pink dots on the graph indicate the outliers (as stated at the top of the graph). This tells me that there are some accidents that involve a high casualty count. These outliers are likely to be accurate as occasionally, there may be accidents that occur with a large number of vehicles or vehicles containing a large number of people. They could be true to life and therefore, they haven't been removed. However, it is still imporant that I am aware of them so that I can analyse them.
 
+The middle chart shows how many vehicles are involved in each collision. On this chart, we can also see a blue box. The blue box represents the middle 50% of values. This is the IQR (interquartile range) displayed here this means that most of the collisions that occur involve 1 to 2 vehicles. This is what I would expect to see. Again here, the pink dots represent the outliers and the line represents the median. For the pink values again here, these have been left here as they are likely to be real-world, accurate values.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Moving on to the final graph on the far right, this shows the distribution of the speed limits for the crashes. The line here shows the median which is 30. This makes sense as many of the crashed were not seriosu accidents. These are more likely to happen at low speeds. However, as we can see from the pink dots, some of the crashes occured at much higher speeds. Again, this is very likely to be true to life.
 
 * Final Null Value Count
 
@@ -187,19 +174,46 @@ Below is a correlation matrix for all of the featues within the dataset. I will 
 
 ![Correlation Matrix For all of the features in the dataset](Results/Feature-Correlation-Matrix/Feature-Correlation-Matrix.png)
 
+Some of the most positive correlations that we can see with the matrix above are:
+
+junction_detail & junction_control - linked at 0.89
+junction_control & second_road_class - linked at 0.91
+junction_detail & second_road_class - linked at 0.83
+
+It makes sense for these to be related as they are simply describing the types of junction and junction control that are preseent on certain roads. We can tell from this that specific types of junction and junction controls are present on second class roads.
+
+pedestrian_crossing & pedestrian_crossing_physical_facilities_historic
+
+This makes sense for these to have a strong correlation as it shows the previous crossing that have been in place and the current crossings that are in place. The government are unlikely to remove crossings for safety purposes. These two are linked at 0.94 which is very strong.
+
+There are many other features which correlate strongly throughout the matrix. There are also, as expected, some features that don't have any correlation whatsoever. This is to be expected.
+
 # Supervised Learning
 
 * Confusion Matrix (MultiClass Severity)
 
+Below is a confusion Matrix. I will explain what this tells me.
+
 ![Confusion Matrix for Multiclass Severity](Results/Multiclass-Classification/Confusion-Matrix-Multiclass-Severity.png)
+
+This confusion matrix shows me that my model is strongly biased towards 3. This is the most common (and least severe) category within my dataset. My model performs well here, as it identifies 1192 cases as a class 3. However, it does appear to struggle somewhat to identify the other classes. This could be because the model is defaulting towards the least severe of the classes and is inaccurate or it could be using the data properly and it understands that the least severe accidents are the most common.
 
 * Top 10 Featrure Importances - Gradient Boosting
 
 ![Top 10 Feature Importances](Results/Gradient-Boosting/Features-Ranked-By-Importance.png)
 
+The image above shows me which features my Gradient Boosting model realies on most whilst predicting the severity of a collision. The features that it relies most heavily on are the speed_limit and the day_of_week. This tells me how fast the vehicle is likely to be travelling at the time of the accident. Weekday vs weekeend patterns also determine the level of traffic on the road and can have a big impact on the actual speed the vehicle can physically travel on the road at the time. Moving through the graph, junction_detail and number_of_vehicles also plays a large role in predicting the severity of the accident. Within the middle of the graph, the number_of_casualties, urban_or_rural_area and road_type contribute moderately to the prediction of the severity. These are still important but the model doesn't depend too highly on these. Finally, the light_conditions, risk_score and road_surface don't hold much value for the model. This makes sense as they wouldn't actually have a direct impact on the severity of the accident if a vehicle were to crash for example due to skidding on a gravel road.
+
 * Multiclass Model Comparison
+The chart below compares the four different models that I selected for multiclass severity prediction, using three different metrics (CValidation Accuracy, weighted F1 score and macro F1 score) I will now explain this in further detail.
 
 ![A bar chart for the comparison of the MultiClass Models](Results/Multiclass-Classification/Multiclass-Model-Comparison.png)
+
+Overall, Gradient Boosting is the model that performs the best. With the highest validation accuracy at 0.8 and the highest weighted F1 score at just below 0.8. This measn that it performs best when considering the dataset as a whole and especially when taking class imbalance into consideration. However, the macro F1 score still remains relatively low at around 0.4. This isn't dissimilar to the rest of the models though.
+
+We can also see that the RF (Random Forest) model comes next with the thats dropping slightly across the board. This still performs relatively well though.
+
+This is followed by the Decision tree model which drops ahain and then finally by Logistic Regression which is the weakest model of the set. This has the lowest accuracy at around 0.5, low F1 scores and a macro F1 of roughly 0.3.
 
 * ROC Curve - Binary Classification
 
@@ -281,14 +295,10 @@ Below is a correlation matrix for all of the featues within the dataset. I will 
 
 LEFT TO DO:
 
-OUTLIER IQR METHOD - PREPROCESSING
-CORRELATION MATRIX - FEATURE ENGINEERING
-
-CONFUSION MATRIX (GRADIENT BOOSTING)- SUPERVISED LEARNING
-TOP 10 FEATURE IMPORTANCES - SUPERVISED LEARNING
-MULTICLASS MODEL COMPARISON - SUPERVISED LEARNING
 ROC CURVE (URBAN VS RURAL) - SUPERVISED LEARNING
+
 CONFUSION MATRIX (URBAN/RURAL) - SUPERVISED LEARNING
+
 CONFUSION MATRIX (JUNCTION DETAIL) - SUPERVISED LEARNING
 
 ACTUAL VS PREDICTED (GRADIENT BOOSTING) - REGRESSION ANALYSIS

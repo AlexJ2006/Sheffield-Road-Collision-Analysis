@@ -1703,7 +1703,7 @@ if len(geo_df) > 0:
     fig, ax = plt.subplots(figsize=(10, 8))
 
     if 'collision_severity' in geo_df.columns:
-        severity_map = {1: 'Slight', 2: 'Serious', 3: 'Fatal'}
+        severity_map = {1: 'Fatal', 2: 'Serious', 3: 'Slight'}
         geo_df['severity_label'] = geo_df['collision_severity'].map(
             severity_map).fillna('Unknown')
         colours = {'Slight': 'steelblue', 'Serious': 'orange',
@@ -1741,8 +1741,8 @@ if len(geo_df) > 0:
                 lon='longitude',
                 color='severity_label' if 'severity_label' in geo_df.columns
                       else 'collision_severity',
-                color_discrete_map={'Fatal': 'blue', 'Serious': 'orange',
-                                    'Slight': 'red'},
+                color_discrete_map={'Slight': 'blue', 'Serious': 'orange',
+                                    'Fatal': 'red'},
                 size='number_of_casualties'
                      if 'number_of_casualties' in geo_df.columns else None,
                 size_max=15,

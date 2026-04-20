@@ -219,6 +219,8 @@ This is followed by the Decision tree model which drops ahain and then finally b
 
 ![ROC Curve - Binary Classification](Results/urban_or_rural_area/ROC-Curve-Rural-vs-Urban.png)
 
+The image above shows the ROC curve for the binary classification of urban_or_rural_area. The blue line on the graph shows the performance of my model itself. The dotted line that runs diagonally through the center of the graph is a random guess at how the model will perform. The curve that relates to my model, rises steeply within the early stages of the graph (the bottom left). This shows the model is already achieveing a positive rate from the start. This shows that my model is good a predicting whether an accident occured within an urban or rural area. However, one of the issues with the dataset is that it contains a lot of data for the urban collisions but nowhere near as many for the rural collisions. This makes the dataset imbalanced.
+
 * Confusion Matrix - Urban/Rural
 
 ![Confusion Matrix - Urban vs Rural](Urban/Rural-Confusion-Matrix.png)
@@ -228,6 +230,8 @@ The confusion matrix above for Urban vs rural prediction shows that the model pe
 * Confusion Matrix - Junction Detail
 
 ![Confusion Matrix - Junction Detail](Results/Junction-Detail/Junction-detail-confusion-matrix.png)
+
+The image above shows the confusion matrix that I generated for the junction detail classification. From this image, I can gather that it doesn't predict the right amount every time. However, within the darkest cell of the confusion matrix, the model made 119 correct predictions. Other squares were significantly less over the rest of the grid. Overall, the metrix shows quite a low accuracy which is definitely something I will try and improve.
 
 # Regression Analysis
 
@@ -273,13 +277,18 @@ Moving on to the Agglomerative Clustering graph. This is the clearest of the thr
 
 # Model Performance & Evaluation
 
-* Multiclass Model Comparison
+* Multiclass Model Comparison 
 
-![Multiclass Model Comparison](Results/Multiclass-Classification/Multiclass-Model-Comparison.png)
+I have already completed a detailed analysis of the image below within an earlier section. This can be found, within the supervised learning section.
+
+![A bar chart for the comparison of the MultiClass Models](Results/Multiclass-Classification/Multiclass-Model-Comparison.png)
+
 
 * Regression Model Comparison (MAE & RMSE)
 
 ![Regression Model Comparison for MAE and RMSE](Results/Regression-model-comparison/Regression-model-comparison-mae-rmse.png)
+
+The image above shows the comparison of six regression models using MAE and RMSE to compare them. One of the most immediately obvious points that I have noticed with the bar chart is that all of the different regression models are very similar. The RMSE values in particular are clustered tightly. This tells me that the choice of regression model actually didn't make much of a different to the outcome. The Baseline model (which predicts the mean value everytime), has the highest MAE and RMSE values. This confirms that the model is actually learning from the data rather than just displaying a simple heuristic value each time.
 
 # Innovative Work
 
@@ -322,6 +331,12 @@ The image above shows the feature correlation heatmap which depicts the relation
 
 Looking at the seasonal collision trends bar chart above, we can see that throughout the year, the number of collisions remains relatively similar dipping or increasing slightly throughout the first few months of the year. One of the most prominent months here is december as it contains the highest number of collisions. This could be due to more people travelling for their christmas break, christmas itself visiting family or people making thier way to events on the final day of december before new years. There could also be certain environmental factors at play here as during the winter months, it could be icy. This could result in a higher number of crashes. These may not be driver error. It was interesting to me to see that throughout the year the collisions remain somewhat even as I initially believed there would be more collisions throughout the summer months. However, my findings of December being the month with the most collisions does make sense to me.
 
+* My Dashboard
+
+In order to work innovatively, I also decided to create a dashboard for my model. 
+
+INSERT IMAGES
+
 # Overall Summary & Conclusion
 
 
@@ -330,13 +345,7 @@ Looking at the seasonal collision trends bar chart above, we can see that throug
 
 LEFT TO DO:
 
-ROC CURVE (URBAN VS RURAL) - SUPERVISED LEARNING
-
-CONFUSION MATRIX (JUNCTION DETAIL) - SUPERVISED LEARNING
-
-MULTICLASS MODEL COMPARISON - MODEL PERFORMANCE AND EVALUATION
-
-REGRESSION MODEL COMPARISON (MAE & RMSE) - MODEL PERFORMANCE AND EVALUATION
+My Dashboard including screenshots and explanations
 
 OVERALL SUMMARY/CONCLUSION
 

@@ -1,7 +1,3 @@
-
-# Importing all of the required libraries for data manipulation, visualisation,
-# machine learning, dimensionality reduction, and geospatial analysis.
-
 # This is my own function that I have created. This allows me to easily enter a blank line wherever I would like one.
 def breakLine():
     print("")

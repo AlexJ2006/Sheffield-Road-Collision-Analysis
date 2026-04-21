@@ -24,16 +24,21 @@ detailed_Readme.md - Contains a detailed explanation of the results found in "Re
 
 Graph Generation Files - Contains the file that creates the graphs. These graphs are shown within Preprocessing-graphs. Then, there's two files within that. One called before and one called after. The before file contains the graphs for before the preprocessing and the after file contains after the cleaning and preprocessing.
 
-
-
-
-
-
 # Usage
 
 * To Run the main Python File
 
+Firstly, you need to have the dependencies installed. These are listed below under "Dependencies"
+Secondly, you need to navigate to the main_new.py file.
+From here, you can simply press F5 which will start running (and debugging) the file. 
+
 * To Run the Dashboard
+
+Open a new terminal
+Then enter "cd dashboard"
+Followed by "streamlit run Dashboard.py"
+
+You will then see the dashboard files open in a new google chrome window.
 
 # Dependencies
 
@@ -47,7 +52,7 @@ seaborn
 imbalanced-learn
 plotly
 
-you can copy the following commadn into your terminal to install these:
+You can copy the following command into your terminal to install these:
 
 pip install matplotlib scikit-learn pandas numpy seaborn imbalanced-learn plotly
 
@@ -55,6 +60,7 @@ If you are using MAC, you may need to use this one:
 
 pip3 install matplotlib scikit-learn pandas numpy seaborn imbalanced-learn plotly
 
+To run the dashboard, you will also need to install streamlit.
 # Output Examples
 
 * Examples of the outputs from my model are wihtin the detailed_Readme.md file. There are also explanations of the results within this file.

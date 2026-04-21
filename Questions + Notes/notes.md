@@ -8,12 +8,6 @@
 #NEED TO CORRECT THE NORTHING AND EASTING OSGR HISTOGRAMS as they are stretched because some of the data is high. This makes it difficult to see the differnec in the before and after.
 
 
-
-
-
-
-
-
 # Notes whilst working through the final version
 
 Whilst working through the final version of the code, there were a few errors that I came across. The first error was that I needed to fix the section that extrapolated the hour from the time_of_day column within the dataset.

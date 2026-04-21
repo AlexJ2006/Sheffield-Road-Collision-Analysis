@@ -1835,42 +1835,42 @@ breakLine()
 print("""
 CLASSIFICATION FINDINGS:
   1. Speed limit is one of the strongest predictors of collision severity.
-     High-speed zones (≥60mph) are associated with more serious outcomes.
+     High-speed zones (>60mph) are associated with more serious collisons.
 
   2. Urban areas account for the majority of collisions in Sheffield,
      but rural collisions tend to produce more severe outcomes due to
-     higher speeds — confirmed by the urban_or_rural_area binary model.
+     higher speeds. This was confirmed by the urban_or_rural_area binary model.
 
   3. Weather and lighting conditions significantly influence accident
-     severity. Night-time dry-road collisions are disproportionately severe,
-     suggesting driver behaviour is a key factor alongside conditions.
+     severity. Night time accidents on dry roads are disproportionately severe,
+     suggesting driver behaviour is a key factor alongside environmental conditions.
 
-  4. Weekend driving patterns differ from weekdays — is_weekend was
-     a useful engineered feature improving model performance.
+  4. Weekend driving patterns differ from weekdays. "is_weekend" was
+     a useful engineered feature and helped to improve the performance of my model.
 
 REGRESSION FINDINGS:
   5. The Random Forest regression model outperformed linear models for
-     predicting casualty counts, reflecting non-linear relationships
+     predicting casualty counts, this shows non-linear relationships
      in road collision data.
 
   6. Collision frequency in Sheffield shows a long-term trend.
-     Seasonal patterns (if identified) suggest targeted campaign timing.
+     Seasonal patterns show that collisions are frequent throughout the year.
 
 CLUSTERING FINDINGS:
   7. KMeans clustering revealed distinct accident profiles:
-     high-speed, multi-vehicle collisions form one cluster;
+     high-speed, multi-vehicle collisions form one cluster,
      urban low-speed single-vehicle incidents form another.
-     These profiles can directly inform targeted safety interventions.
+     Eventually, these profiles could be used to put additional safety measures into place.
 
   8. DBSCAN identified noise points representing unusual/rare collisions
-     that do not fit standard patterns — worth investigating separately.
+     that do not fit the standard patterns. These would be worth investigating separately.
 
 RESPONSIBLE AI:
-  9. Class imbalance (few Fatal vs many Slight) was handled with
-     class_weight='balanced'. Models should not be deployed without
-     expert road safety review, particularly for severity predictions.
+  9. There was also a class imbalance (few Fatal vs many Slight collisions) was handled with
+     class_weight='balanced'. The class imbalance means that models such as this should not be deployed
+     or used within any real-world context as the data may be innacurate.
 
- 10. Feature importance analysis (Explainable AI) improves trust in
+ 10. Feature importance analysis (Explainable AI) improves the trust in
      model outputs by making decision drivers transparent to
      non-technical stakeholders such as Sheffield City Council.
 """)
@@ -1878,3 +1878,4 @@ RESPONSIBLE AI:
 print("=" * 70)
 print("Analysis complete. All outputs saved/displayed above.")
 print("=" * 70)
+breakLine()

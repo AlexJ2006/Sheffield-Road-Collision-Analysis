@@ -1,18 +1,47 @@
+# README FILE FOR SUBMISSION
+
 # Installation Instructions
 
-* How to set up and run the code
+* Prerequisites
+
+My model requires python 3.9 or higher. Personally, I used python 3.12.1.
+
+* Code Setup
+
+1. Clone my git repository
+2. Create a virtual environment for python (I used VENV)
+3. Install all of the necessary dependencies (These are listed in the Dependencies section of this file)
 
 # File Organisation
 
-* My file Organisation
+* HOW SHOULD I LAY THIS OUT?
 
 # Usage
 
-* How to use the Software/Code
+* To Run the main Python File
+
+* To Run the Dashboard
+
 
 # Dependencies
 
-* List of Necessary Libraries
+In order to run my code, you'll need to install the following dependencies:
+
+matplotlib
+scikit-learn
+pandas
+numpy
+seaborn
+imbalanced-learn
+plotly
+
+you can copy the following commadn into your terminal to install these:
+
+pip install matplotlib scikit-learn pandas numpy seaborn imbalanced-learn plotly
+
+If you are using MAC, you may need to use this one:
+
+pip3 install matplotlib scikit-learn pandas numpy seaborn imbalanced-learn plotly
 
 # Output Examples
 
@@ -20,7 +49,7 @@
 
 # AITS (Artificial Intelligence Transparency Statement)
 
-* AITS
+* I have not used AI for the shaping of my coursework.
 
 # AI Prompts Logs
 
@@ -28,4 +57,27 @@
 
 # Citation and References
 
-* WILL INCLUDE BELOW, GET FROM WORD DOCUMENT
+* These have been taken from a Word Document that I kept throughout the project.
+
+Cambridge Dictionary. (n.d.). imputation. Retrieved from Cambridge Dictionary: https://dictionary.cambridge.org/dictionary/english/imputation
+scikit learn. (2025). Pipeline. Retrieved from scikit learn: https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html?utm_source=chatgpt.com
+seaborn. (n.d.). seaborn.countplot. Retrieved from seaborn: https://seaborn.pydata.org/generated/seaborn.countplot.html
+seaborn. (n.d.). seaborn.kdeplot. Retrieved from seaborn: https://seaborn.pydata.org/generated/seaborn.kdeplot.html
+Simões, V. (2024, January 23). Python Aesthetics -Enhancing Terminal Readability with Color. Retrieved from Medium: https://vascosim.medium.com/how-to-print-colored-text-in-python-52f6244e2e30
+pandas. (n.d.). pandas.read_csv. Retrieved from pandas: https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html
+pandas. (n.d.). pandas.DataFrame.fillna. Retrieved from pandas: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.fillna.html
+scikit-learn. (2025). StandardScaler. Retrieved from scikit-learn: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html
+scikit-learn. (2025). RandomForestClassifier. Retrieved from scikit-learn: https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+scikit-learn. (2025). GradientBoostingClassifier. Retrieved from scikit-learn: https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html
+scikit-learn. (2025). GridSearchCV. Retrieved from scikit-learn: https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html
+scikit-learn. (2025). KMeans. Retrieved from scikit-learn: https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html
+scikit-learn. (2025). DBSCAN. Retrieved from scikit-learn: https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html
+scikit-learn. (2025). PCA. Retrieved from scikit-learn: https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
+scikit-learn. (2025). train_test_split. Retrieved from scikit-learn: https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html
+imbalanced-learn. (2025). SMOTE. Retrieved from imbalanced-learn: https://imbalanced-learn.org/stable/references/generated/imblearn.over_sampling.SMOTE.html
+plotly. (n.d.). scatter_mapbox. Retrieved from Plotly: https://plotly.com/python/scattermapbox/
+numpy. (n.d.). numpy.log1p. Retrieved from NumPy: https://numpy.org/doc/stable/reference/generated/numpy.log1p.html
+scikit-learn. (2025). silhouette_score. Retrieved from scikit-learn: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.silhouette_score.html
+scikit-learn. (2025). roc_auc_score. Retrieved from scikit-learn: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.roc_auc_score.html
+
+I have also taken considerable guidance from the work that we have been taught throughout the lecture series and lab sessions. However, this is not referenced here.

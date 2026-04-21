@@ -223,7 +223,7 @@ The image above shows the ROC curve for the binary classification of urban_or_ru
 
 * Confusion Matrix - Urban/Rural
 
-![Confusion Matrix - Urban vs Rural](Urban/Rural-Confusion-Matrix.png)
+![Confusion Matrix - Urban vs Rural](Results/urban_or_rural_area/Rural-Confusion-Matrix.png)
 
 The confusion matrix above for Urban vs rural prediction shows that the model performs very well when predicting urban collisions. However, it is much less effective when predicting rural collisions. This therefore means that there is a class imbalance present. Therefore, I may need to work on some additional oversampling or using a larger sample or rural data. The issue here could simply be that there isn't much rural data within teh dataset as the majority of sheffield is contained within the city. Therefore, most of the traffic will be within the city center meaning most of the accidents occur in an urban area rather than a rural one.
 
@@ -237,7 +237,7 @@ The image above shows the confusion matrix that I generated for the junction det
 
 * Actual Vs Predicted (Gradient Boosting)
 
-![Actual Vs Predicted (Gradient Boosting)](Actual-vs-predicted-Ridge.png)
+![Actual Vs Predicted (Gradient Boosting)](Results/Gradient-Boosting/Actual-vs-predicted-Ridge.png)
 
 The actual vs predicted ridge regression model (the image shown above), depicts a clear pattern. The red dashed line represents a perfect preiction, where the actual and predicted values are identical. It is clear from the chart that the model's predictions are heavily clustered in a narrow band between 1 and 2 on the predicted axis. This is the same throughout the graph. This means that no matter how many casualties were actually involved in a collision, the models tends to predict a value of somewhere betweeen 1 and 2. This leads me to believe that the model is struggling to predict the full range of the target variable that I had provided. As we can see, when the number of casualties is 2, the model performs relatively well. However, it then drops off further and further away from the perfrect prediction line as the number of casualties increases.
 
@@ -339,15 +339,57 @@ INSERT IMAGES
 
 # Overall Summary & Conclusion
 
+This has been taken from the end of the codefile.
 
+CLASSIFICATION FINDINGS:
+  1. Speed limit is one of the strongest predictors of collision severity.
+     High-speed zones (>60mph) are associated with more serious collisons.
 
+  2. Urban areas account for the majority of collisions in Sheffield,
+     but rural collisions tend to produce more severe outcomes due to
+     higher speeds. This was confirmed by the urban_or_rural_area binary model.
+
+  3. Weather and lighting conditions significantly influence accident
+     severity. Night time accidents on dry roads are disproportionately severe,
+     suggesting driver behaviour is a key factor alongside environmental conditions.
+
+  4. Weekend driving patterns differ from weekdays. "is_weekend" was
+     a useful engineered feature and helped to improve the performance of my model.
+
+REGRESSION FINDINGS:
+  5. The Random Forest regression model outperformed linear models for
+     predicting casualty counts, this shows non-linear relationships
+     in road collision data.
+
+  6. Collision frequency in Sheffield shows a long-term trend.
+     Seasonal patterns show that collisions are frequent throughout the year.
+
+CLUSTERING FINDINGS:
+  7. KMeans clustering revealed distinct accident profiles:
+     high-speed, multi-vehicle collisions form one cluster,
+     urban low-speed single-vehicle incidents form another.
+     Eventually, these profiles could be used to put additional safety measures into place.
+
+  8. DBSCAN identified noise points representing unusual/rare collisions
+     that do not fit the standard patterns. These would be worth investigating separately.
+
+RESPONSIBLE AI:
+  9. There was also a class imbalance (few Fatal vs many Slight collisions) was handled with
+     class_weight='balanced'. The class imbalance means that models such as this should not be deployed
+     or used within any real-world context as the data may be innacurate.
+
+ 10. Feature importance analysis (Explainable AI) improves the trust in
+     model outputs by making decision drivers transparent to
+     non-technical stakeholders such as Sheffield City Council.
+
+Finally, my overall thoughts on the project were that it was extremely intersting. Through working on my model and producing a variety of graphs and seeing different results, I have learned so much. There were some things that especially surprised me throughout my work, such as certain trends within the data. For example, the number of collisions that occur on weekdays compared to within the week shocked me.
+
+There are also some things that I would change about my model...
 # Any other graphs that I initially created...
 
 LEFT TO DO:
 
 My Dashboard including screenshots and explanations
-
-OVERALL SUMMARY/CONCLUSION
 
 OTHER RANDOM GRAPH IMAGES
 
@@ -355,4 +397,5 @@ Video Presentation
 
 Add in neural network work??
 
-Create new ReadMe
+Create new ReadMe - add in dashboard stuff
+

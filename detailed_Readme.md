@@ -384,15 +384,58 @@ This has been taken from the end of the codefile.
 
 Finally, my overall thoughts on the project were that it was extremely intersting. Through working on my model and producing a variety of graphs and seeing different results, I have learned so much. There were some things that especially surprised me throughout my work, such as certain trends within the data. For example, the number of collisions that occur on weekdays compared to within the week shocked me.
 
+
+# My Dashboard
+
+* Main Page
+
+The first half of the main page of my dashboard is depicted below. On the first part of this page, the user can see an interactive Graph Builder. This allows the user to pick the type of chart they would like to generate along with teh X and Y variables for the chart. Another feature that I added was a radio button which allows the user to choose whether the dataset they would like to use is the cleaned dataset (After cleansing) or the raw dataset (Before cleansing).
+
+![The main page of my dashboard](Results/Dashboard-Images/Dashboard-MainPage.png)
+
+Below the interactive graph builder, there is a data preview drop down menu. This provides the user with the first 50 rows in the dataset. This is enough just to give them a brief understanding of the dataset. This section is shown within the image below.
+
+![The second half of the main page of my dashboard](Results/Dashboard-Images/Dashboard-MainPage-2.png)
+
+
+* KNN Classification Diagrams Page
+
+The next page is the KNN Diagrams page. This is shown within the image below. On this page, the user can select the number of neighbours that they would like to see for their graph, they can also select the X and Y variables. In the example, the X and Y variables are collision_year and location_easting_osgr. When the user laods the page, they will see this example exactly as shown in the image.
+
+![KNN Page](Results/Dashboard-Images/Dashboard-KNN-Diagrams.png)
+
+* PCA - Principal Component Analysis
+
+As with the main page, the PCA page has been split into two differnt screenshots. The screenshot below shows a feature correlation matrix. It also describes the dataset used for the PCA (principal component analysis). Here, we can see the number of features used for the dataset (which, in this instance was 41).
+
+![The first half of my PCA page](Results/Dashboard-Images/Dashboard-PCA-1.png)
+
+The second image (below) allows the user to change the PCA settings. They can change the number of principal components that are used for the graph which is shown below. The graph below the number of principal components slider is an explained variance of PCa components chart.
+
+![The second half of my PCA page](Results/Dashboard-Images/Dashboard-PCA-2.png)
+
+* SVM
+
+Within the SVM page, shown below, the user can choose different models along with a different number of weather features to be used for the prediction of the severity. In this example, I used 9 weather conditions and the linear model. This predicted the collision severity to be a level 3. This is very severe.
+
+The user is also presented with a graph that shows the Train vs test data distribution. The data split is shown on the graph too. With orange being the test data and the train data being the blue section.
+
+![SVM Page](Results/Dashboard-Images/Dashboard-SVM.png)
+
+* Model Comparison
+
+For the final page of the dashboard (the model comparison page), firstly, the user can see a model performance table. This shows the different models and their status (tuned or default), along with some statistics about them. For example, their accuracy, precision, recall, F1 score, RMSE value and R squared value. They can also see a graph comparing the models, below.
+
+![First Half of my Model Comparison Page](Results/Dashboard-Images/Dashboard-Model-Comparison-1.png)
+
+Within the second half of the page (seen below), the user is directly provided with a the result for the best classification model and the best regression model. As we can see here, the best classification model here was the SVM (default) model.
+
+![Second Half of my Model Comparison Page](Results/Dashboard-Images/Dashboard-Model-Comparison-2.png)
+
 There are also some things that I would change about my model...
 
 LEFT TO DO:
 
-My Dashboard including screenshots and explanations
-
 Video Presentation
 
 Add in neural network work??
-
-Create new ReadMe - add in dashboard stuff
-

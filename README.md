@@ -61,6 +61,7 @@ If you are using MAC, you may need to use this one:
 pip3 install matplotlib scikit-learn pandas numpy seaborn imbalanced-learn plotly
 
 To run the dashboard, you will also need to install streamlit.
+
 # Output Examples
 
 * Examples of the outputs from my model are wihtin the detailed_Readme.md file. There are also explanations of the results within this file.

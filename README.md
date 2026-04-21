@@ -22,7 +22,7 @@ dashboard - Contains the pages for my dashboard
 
 detailed_Readme.md - Contains a detailed explanation of the results found in "Results" as well as a conclusion I have provided.
 
-Graph Generation Files - Contains the file that creates the graphs within 
+Graph Generation Files - Contains the file that creates the graphs. These graphs are shown within Preprocessing-graphs. Then, there's two files within that. One called before and one called after. The before file contains the graphs for before the preprocessing and the after file contains after the cleaning and preprocessing.
 
 
 

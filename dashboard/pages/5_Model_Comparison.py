@@ -14,21 +14,18 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.linear_model import LogisticRegression
 
-# PAGE CONFIG
-
+# PAGE CONFIGURATION 
 st.set_page_config(page_title="Model Comparison", layout="wide")
-st.title("📊 Model Comparison")
+st.title("Model Comparison")
 
-# LOAD DATA (MATCHING YOUR PROJECT)
-
+# Loadinging the data in from the cleaned dataset.
 @st.cache_data
 def load_data():
     return pd.read_csv("../Sheffield Collision Data Cleaned.csv")
 
 df = load_data()
 
-# FEATURE ENGINEERING (MATCH YOUR CODE)
-
+# FEATURE ENGINEERING
 df['hour'] = pd.to_datetime(df['time'], errors='coerce').dt.hour
 
 feature_columns = ['weather_conditions', 'road_type', 'light_conditions','speed_limit',
@@ -59,14 +56,13 @@ preprocessor = ColumnTransformer([
     ('cat', categorical_transformer, categorical_features)
 ])
 
-# SPLIT DATA
-
+# SPLITTING THE DATA
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=4)
 
 X_train_fe = preprocessor.fit_transform(X_train)
 X_test_fe = preprocessor.transform(X_test)
 
-# MODELS
+# DISPLAYING THE DIFFERENT MODELS
 
 # Default models
 knn_default = KNeighborsClassifier(n_neighbors=4)
@@ -78,7 +74,7 @@ svm_default.fit(X_train_fe, y_train)
 reg.fit(X_train_fe, y_train)
 y_pred_reg = reg.predict(X_test_fe)
 
-# TUNING
+# TUNING SECTION
 
 # KNN tuning
 knn_params = {
@@ -116,7 +112,7 @@ def regression_metrics(y_true, y_pred):
         "R²": r2_score(y_true, y_pred)
     }
 
-# Collect results
+# Collecting the results
 results = []
 
 def add_classification_result(name, y_true, y_pred):
@@ -143,13 +139,11 @@ results.append(metrics_reg)
 
 results_df = pd.DataFrame(results)
 
-# DISPLAY TABLE
-
+# Performance Table
 st.subheader("Model Performance Table")
 st.dataframe(results_df.set_index("Model"))
 
 # VISUAL COMPARISON
-
 st.subheader("Performance Comparison")
 
 metric_choice = st.selectbox(
@@ -162,9 +156,8 @@ if metric_choice in results_df.columns:
 
     st.bar_chart(chart_df.set_index("Model"))
 
-# BEST MODEL
-
-st.subheader("🏆 Best Model")
+# Displaying the best model
+st.subheader("Best Model")
 
 if "Accuracy" in results_df.columns:
     best_model = results_df.sort_values("Accuracy", ascending=False).iloc[0]
@@ -174,8 +167,7 @@ if "R²" in results_df.columns:
     best_reg = results_df.sort_values("R²", ascending=False).iloc[0]
     st.info(f"Best regression model: {best_reg['Model']}")
 
-# Logistics Regresion   
-
+# Logistic Regresion   
 log_reg = LogisticRegression(max_iter=1000)
 log_reg.fit(X_train_fe, y_train)
 
@@ -184,4 +176,3 @@ add_classification_result(
     y_test,
     log_reg.predict(X_test_fe)
 )
-

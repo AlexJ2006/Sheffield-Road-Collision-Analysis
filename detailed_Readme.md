@@ -386,8 +386,6 @@ Finally, my overall thoughts on the project were that it was extremely interstin
 
 There are also some things that I would change about my model...
 
-# Any other graphs that I initially created...
-
 LEFT TO DO:
 
 My Dashboard including screenshots and explanations

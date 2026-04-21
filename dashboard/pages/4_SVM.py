@@ -11,34 +11,29 @@ from sklearn.metrics import accuracy_score
 st.title("SVM Collision Severity Analysis")
 
 # Loading the data from the cleaned dataset file
-
 df = pd.read_csv("../Sheffield Collision Data Cleaned.csv")
 
 X = df[['weather_conditions']]
 y = df['collision_severity']
 
 # Train, Test, Split
-
 x_train, x_test, y_train, y_test = train_test_split(
     X, y, random_state=80
 )
 
-# Encode Features
-
+# Encoding the Features
 encoder = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
 
 x_train_encoded = encoder.fit_transform(x_train)
 x_test_encoded = encoder.transform(x_test)
 
-# Standardise Features
-
+# Standardising the features
 scaler = StandardScaler()
 
 x_train_scaled = scaler.fit_transform(x_train_encoded)
 x_test_scaled = scaler.transform(x_test_encoded)
 
 # Building the SVM Classifier (Linear)
-
 svm_linear = SVC(
     C=1,
     kernel='linear',
@@ -46,19 +41,16 @@ svm_linear = SVC(
 )
 
 # Training the SVM Classifier
-
 svm_linear.fit(x_train_scaled, y_train)
 
 # Testing the SVM Classifier
-
 linear_pred = svm_linear.predict(x_test_scaled)
 linear_accuracy = accuracy_score(y_test, linear_pred)
 
 st.subheader("Linear Kernel Accuracy")
 st.write(linear_accuracy)
 
-# Build the SVM Classifier (RBF)
-
+# Building the SVM Classifier (RBF)
 svm_rbf = SVC(
     C=1,
     kernel='rbf',
@@ -66,20 +58,17 @@ svm_rbf = SVC(
     class_weight='balanced'
 )
 
-# Train the RBF Classifier
-
+# Training the RBF Classifier
 svm_rbf.fit(x_train_scaled, y_train)
 
 # Testing the RBF Classifier
-
 rbf_pred = svm_rbf.predict(x_test_scaled)
 rbf_accuracy = accuracy_score(y_test, rbf_pred)
 
 st.subheader("RBF Kernel Accuracy")
 st.write(rbf_accuracy)
 
-# Build the SVM Classifier (Polynomial)
-
+# Building the SVM Classifier (Polynomial)
 svm_poly = SVC(
     C=1,
     kernel='poly',
@@ -89,12 +78,10 @@ svm_poly = SVC(
     class_weight='balanced'
 )
 
-# Train the Polynomial Classifier
-
+# Training the Polynomial Classifier
 svm_poly.fit(x_train_scaled, y_train)
 
-# Test Polynomial Classifier
-
+# Testing the Polynomial Classifier
 poly_pred = svm_poly.predict(x_test_scaled)
 poly_accuracy = accuracy_score(y_test, poly_pred)
 
@@ -102,7 +89,6 @@ st.subheader("Polynomial Kernel Accuracy")
 st.write(poly_accuracy)
 
 # Model Classification
-
 st.subheader("Model Comparison")
 
 comparison = pd.DataFrame({
@@ -145,8 +131,7 @@ if st.button("Predict"):
 
     st.success(f"Predicted Collision Severity: {prediction[0]}")
 
-# Plot Train/Test Data
-
+# Plotting the Train/Test Data
 st.subheader("Train vs Test Data Distribution")
 
 fig, ax = plt.subplots()

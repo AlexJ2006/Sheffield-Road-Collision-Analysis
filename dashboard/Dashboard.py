@@ -3,10 +3,10 @@ import seaborn as sbn
 import matplotlib.pyplot as plt
 import streamlit as st
 
-# Config
+# Page configuration
 st.set_page_config(page_title="Sheffield Collision Dashboard", layout="wide")
 
-# Sidebar
+# Creating the Sidebar
 st.sidebar.title("Pre-processing")
 
 st.sidebar.markdown(
@@ -29,11 +29,12 @@ def load_clean_data():
 raw_df = load_raw_data()
 clean_df = load_clean_data()
 
-# Main Page
+# Main page text
 st.title("Sheffield Collision Data – Interactive Graph Builder")
 
 st.subheader("Dataset selection")
 
+# Adding a radio button
 dataset_choice = st.radio(
     "Choose which version of the data to view",
     ["Before cleansing", "After cleansing"],
@@ -48,7 +49,7 @@ else:
 numeric_columns = df.select_dtypes(include=["number"]).columns.tolist()
 all_columns = df.columns.tolist()
 
-# Control panel
+# Adding a control panel
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -102,7 +103,7 @@ with col3:
         y_col = None
         st.markdown("Y variable not required for this chart.")
         
-# Plot Area
+# Specifying the plot area
 fig, ax = plt.subplots(figsize=(9, 6))
 
 try:

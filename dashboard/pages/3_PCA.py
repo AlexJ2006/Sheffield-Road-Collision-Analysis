@@ -13,15 +13,14 @@ st.set_page_config(page_title="PCA analysis", layout="wide")
 st.title("Principal Component Analysis (PCA)")
 st.markdown("Visualising PCA on the Sheffield collision dataset.")
 
-# Loading the data
-
+# Loading the data from the cleaned dataset
 @st.cache_data
 def load_data():
     return pd.read_csv("../Sheffield Collision Data Cleaned.csv")
 
 df = load_data()
 
-# Building x and y
+# Building x and y variables
 x = df.select_dtypes(include=["number"])
 
 x = x.drop(
@@ -40,7 +39,6 @@ st.subheader("Dataset used for PCA")
 st.write("Number of features used:", x.shape[1])
 
 # Correlation Heatmap
-
 st.subheader("Feature correlation matrix")
 
 corr_matrix = x.corr()
@@ -51,19 +49,16 @@ st.pyplot(fig, clear_figure=True)
 plt.close(fig)
 
 # Test, train, split.
-
 x_train, x_test, y_train, y_test = train_test_split(
     x, y, random_state=3
 )
 
-# Scaling
-
+# Scaling the data
 scaler = StandardScaler()
 x_train_scaled = scaler.fit_transform(x_train)
 x_test_scaled = scaler.transform(x_test)
 
 # PCA with an interactive number of components
-
 st.subheader("PCA settings")
 
 n_components = st.slider(
@@ -77,7 +72,6 @@ pca = PCA(n_components=n_components)
 x_pca_train = pca.fit_transform(x_train_scaled)
 
 # Explained Variance
-
 st.subheader("Explained variance")
 
 evr = pca.explained_variance_ratio_
@@ -97,7 +91,6 @@ st.pyplot(fig, clear_figure=True)
 plt.close(fig)
 
 # PCA Scatter Plot
-
 if n_components >= 2:
 
     st.subheader("PCA projection (PC1 vs PC2)")
@@ -124,8 +117,7 @@ if n_components >= 2:
     st.pyplot(fig, clear_figure=True)
     plt.close(fig)
 
-# Heatmap
-
+# PCA Heatmap
 st.subheader("PCA loadings heatmap")
 
 loadings = pd.DataFrame(
@@ -149,7 +141,6 @@ ax.set_title("PCA loadings")
 st.pyplot(fig, clear_figure=True)
 plt.close(fig)
 
-# Table (optional whether I want to keep it)
-
+# PCA Table
 with st.expander("Show PCA loadings table"):
     st.dataframe(loadings.round(3))

@@ -341,7 +341,7 @@ INSERT IMAGES
 
 This has been taken from the end of the codefile.
 
-CLASSIFICATION FINDINGS:
+* CLASSIFICATION FINDINGS:
   1. Speed limit is one of the strongest predictors of collision severity.
      High-speed zones (>60mph) are associated with more serious collisons.
 
@@ -356,7 +356,7 @@ CLASSIFICATION FINDINGS:
   4. Weekend driving patterns differ from weekdays. "is_weekend" was
      a useful engineered feature and helped to improve the performance of my model.
 
-REGRESSION FINDINGS:
+* REGRESSION FINDINGS:
   5. The Random Forest regression model outperformed linear models for
      predicting casualty counts, this shows non-linear relationships
      in road collision data.
@@ -364,7 +364,7 @@ REGRESSION FINDINGS:
   6. Collision frequency in Sheffield shows a long-term trend.
      Seasonal patterns show that collisions are frequent throughout the year.
 
-CLUSTERING FINDINGS:
+* CLUSTERING FINDINGS:
   7. KMeans clustering revealed distinct accident profiles:
      high-speed, multi-vehicle collisions form one cluster,
      urban low-speed single-vehicle incidents form another.
@@ -373,7 +373,7 @@ CLUSTERING FINDINGS:
   8. DBSCAN identified noise points representing unusual/rare collisions
      that do not fit the standard patterns. These would be worth investigating separately.
 
-RESPONSIBLE AI:
+* RESPONSIBLE AI:
   9. There was also a class imbalance (few Fatal vs many Slight collisions) was handled with
      class_weight='balanced'. The class imbalance means that models such as this should not be deployed
      or used within any real-world context as the data may be innacurate.
@@ -390,8 +390,6 @@ There are also some things that I would change about my model...
 LEFT TO DO:
 
 My Dashboard including screenshots and explanations
-
-OTHER RANDOM GRAPH IMAGES
 
 Video Presentation
 

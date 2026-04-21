@@ -22,7 +22,6 @@ My model requires python 3.9 or higher. Personally, I used python 3.12.1.
 
 * To Run the Dashboard
 
-
 # Dependencies
 
 In order to run my code, you'll need to install the following dependencies:

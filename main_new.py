@@ -341,11 +341,9 @@ plt.suptitle('Outlier Analysis — Key Numerical Features', fontsize=13) # Titli
 plt.tight_layout()
 plt.show()
 
-
 # Final check for any remaining missing values after cleaning
 # This is just to ensure that any NA values have been handled correctly.
 # There shouldn't be any N/A values within the dataset at this point.
-
 
 breakLine()
 print("=" * 70) # Using the same process as earlier. This time, to mark the beginning of the data preprocessing section.
@@ -361,8 +359,6 @@ breakLine()
 print("=" * 70)
 breakLine()
 
-
-print ("========================================== THESE MAY NEED TO BE MOVED ===================================================")
 fig, axes = plt.subplots(2, 3, figsize=(18, 10))
 
 df = sheffield_dataframe_updated.copy()
@@ -371,7 +367,7 @@ df = sheffield_dataframe_updated.copy()
 df['is_weekend'] = df['day_of_week'].isin([6, 7]).astype(int)
 df['high_speed_zone'] = (df['speed_limit'] >= 60).astype(int)
 
-# Clean target (remove invalid class)
+# Clean target removing the invalid class
 df = df[df['urban_or_rural_area'].isin([1, 2])]
 
 # Convert to binary
@@ -382,9 +378,6 @@ df['urban_or_rural_area'] = df['urban_or_rural_area'].map({
 
 # Safety check
 print("Final target values:", sorted(df['urban_or_rural_area'].unique()))
-
-print ("========================================== THESE MAY NEED TO BE MOVED ===================================================")
-
 
 # Below, I have created a series of visualisations to explore the dataset, following the cleaning and imputation process.
 # These visualisations are important as they allow me to understand the distribution of the data, the relationships between different features, and any potential issues that may still be present within the dataset after cleaning.
@@ -833,32 +826,6 @@ df['is_weekend'] = df['day_of_week'].isin([6, 7]).astype(int) # Reiterating the 
 df['high_speed_zone'] = (df['speed_limit'] >= 60).astype(int)
 df['risk_score'] = (df['number_of_casualties'] > 0).astype(int)
 police_target = 'did_police_officer_attend_scene_of_accident'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 bin_df = df[binary_features + ['urban_or_rural_area']].dropna().copy()  # Dropping any rows that have N/A values in the features or target column for this task, as these would cause issues during model training and evaluation.
 # There aren't any N/A Values present (as I saw earlier) but this is just an extra precaution.

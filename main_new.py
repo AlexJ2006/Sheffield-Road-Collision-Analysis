@@ -376,9 +376,6 @@ df['urban_or_rural_area'] = df['urban_or_rural_area'].map({
     2: 0
 })
 
-# Safety check
-print("Final target values:", sorted(df['urban_or_rural_area'].unique()))
-
 # Below, I have created a series of visualisations to explore the dataset, following the cleaning and imputation process.
 # These visualisations are important as they allow me to understand the distribution of the data, the relationships between different features, and any potential issues that may still be present within the dataset after cleaning.
 
@@ -1452,9 +1449,11 @@ print("Model Performance Evaluation and Analysis")
 print("=" * 70)
 breakLine()
 
+
+# Testing the performance here using an accuracy tester shown in week 11.
+
 auc_p = None  # default value
 
-# ROC only makes sense if test set has 2 classes
 if len(np.unique(y_te_p)) == 2:
     y_prob_pol = rf_pol.predict_proba(X_te_p_s)[:, 1]
 
@@ -1694,7 +1693,6 @@ if len(geo_df) > 0:
     print(f"Geospatial map plotted for {len(geo_df):,} collisions in Sheffield.")
     print("Red dots indicate fatal collisions — these cluster around major arterial roads.")
 
-
     # Creating an interactive heatmap using plotly.
     try:
         if 'collision_severity' in geo_df.columns:
@@ -1783,6 +1781,16 @@ if len(available_eng) > 1:
     plt.title('Engineered Feature Correlations with Casualty Count')
     plt.tight_layout()
     plt.show()
+
+
+
+
+
+
+
+
+
+
 
 # Final, overall insights and conclusion.
 # This is for the model on the whole as well as my findings from the results.

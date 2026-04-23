@@ -1077,7 +1077,6 @@ reg_df = pd.get_dummies(reg_df, drop_first=True)
 
 X_reg = reg_df.drop(columns=['number_of_casualties'])
 
-import numpy as np
 y_reg = np.log1p(reg_df['number_of_casualties'])
 
 print("Regression target = number_of_casualties:")

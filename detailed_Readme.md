@@ -16,7 +16,7 @@ Results & Justification:
 
 It is evident from the images provided that my cleaning method has been effectve for the local_highway_authority_current column. When I first recieved the dataset (pre-cleaning), the total number of valid rows was just over 2500. We can see this from the before histogram. As depicted in the second image (the text image), this meant that there were 5,314 N/A values present within the column. After this column had been cleaned, the histogram shows that the values present reached nearly 8000. This is accurate for the dataset as there were 7,933 total records present.
 
-Therefore meaning, I had filled every row with the same value. This makes sense for this dataset for two reasons.
+Therefore, I had filled every row with the same value. This makes sense for this dataset for two reasons.
 
 Firstly, the dataset initially contained roughly 2600 of one value. This meant that it was extremely likely that the rest of the values were going to be the same. Secondly, the dataset is for Sheffield ONLY. Therefore, the local authority that looks after the highways will be the authority within the local area of Sheffield, meaning that it will be the same throughout the entire dataset. If it wasn't the same area code, the data present wouldn't be for sheffield and it would need to be dealt with accordingly as it would present innacuracies within the model, further down the line.
 

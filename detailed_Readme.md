@@ -38,7 +38,7 @@ Looking at the initial data that I was provided with, I believed that it was the
 
 * urban_or_rural_area
 
-For this column, the cleaning was slightly more complicated. I decided to remove values from this column that I deemed innacurate and unnecessary and keep the values 1 and 2. I then re-mapped 1 and 2 to 0 and 1. I will justify this and explain my methodology in the results and justification section below, after the image.
+For the "urban_or_rural_area column, the cleaning was slightly more complicated. I decided to remove values from this column that I deemed innacurate and unnecessary and keep the values 1 and 2. I then re-mapped 1 and 2 to 0 and 1. I will justify this and explain my methodology in the results and justification section below, after the image.
 
 The image below shows the output of the successful cleaning process for this column.
 
@@ -46,9 +46,9 @@ The image below shows the output of the successful cleaning process for this col
 
 Results & Justification:
 
-As I mentioned earlier, for this column I decided to remove some of the values that were initially present. These values were -1 and 3. My reasoning behind this decision was that I could safely deduct that the values -1 and 3 signified inaccurate values of values that hadn't been recorded. These values didn't make sense to be within the datset. However, it was logical that the values 1 and 2 signified urban and rural areas.
+As I mentioned earlier, for this column I decided to remove some of the values that were initially present. These values were -1 and 3. My reasoning behind this decision was that I could safely deduct that the values -1 and 3 signified inaccurate values that hadn't been recorded. These values didn't make sense to be within the dataset. However, it was logical that the values 1 and 2 signified urban and rural areas.
 
-One of the things that I was preoccupied with during this process was how low the number of accidents that occured within the rural area was. This value can be seen within the image above in the final section. It shows the value of rural accidents to be 410. Initially, I thought this value was much too low. However, upon reflection, I decided that this value was likely to be accurate as there would be much less traffic on the rural roads within the Sheffield area and therefore fewer accidents (likely only around 8.6% of accidents overall). Therefore, I decided to leave this value as it is.
+One of the things that I was preoccupied with during this process was how low the number of accidents that occured within the rural area was. This value can be seen within the image above in the final section. It shows the value of rural accidents to be 410. Initially, I thought this value was much too low. However, upon reflection, I decided that this value was likely to be accurate as there would be much less traffic on the rural roads within the Sheffield area and therefore fewer accidents (likely only around 8.6% of accidents overall). Therefore, I decided to leave this value as it was.
 
 One of the main reasons behind cleaning the column in this way and mapping the new values to 1 and 0 was for the binary classification. Binary Classification wouldn't have worked on this data if I had kept it as it previously was (as they weren't binary values). I will mention this further on in this file.
 
@@ -62,9 +62,9 @@ Results & Justification:
 
 As I emphasised within the comments during this section of the code file, these two columns were actually near-perfect to begin with. Neither of them required much cleaning with only 65 rows each (a total of 130 over both columns), presenting as N/A. Over 7,933 rows in the location_easting_osgr, having just 65 N/A values meant that only 0.8% of the column needed replacing with the mean. This is the same for the location_easting_osgr column too.
 
-I believe that mean imputation was the right choice to fill thesee N/A values as it reduces variance in the dataset. By this, I mean that it keeps the data within the same grographical area by using the mean and avoids accidentally creating any outliers. The data that I am imputing will follow the trend that has already been set by the other data points. I am avoiding creating any unnecessary inaccuracies here as mean imputation allows the new data to stay within the safe boundaries that currently exist within the dataset.
+I believe that mean imputation was the right choice to fill these N/A values as it reduces variances in the dataset. By this, I mean that it keeps the data within the same grographical area by using the mean and avoids accidentally creating any outliers. The data that I am imputing will follow the trend that has already been set by the other data points. I am avoiding creating any unnecessary inaccuracies here as mean imputation allows the new data to stay within the safe boundaries that currently exist within the dataset.
 
-Furthermore, given the fact that I was only imputing 0.8% of each column, if I was to have imputed these values inaccurarately, it is unlikely to actually have much of an effect on the accuracy of the final model itself.
+Furthermore, given the fact that I was only imputing the mean value into 0.8% of each column, if I was to have imputed these values inaccurarately, it is unlikely to actually have much of an effect on the accuracy of the final model itself.
 
 * collision_adjusted_severity_serious & collision_adjusted_severity_slight
 
@@ -76,19 +76,18 @@ Evidence of the output can be found in the image below:
 
 Results & Justification:
 
-Once again, as for the section above, the columns showed that they had very few N/A values. However, when using the mode for these columns, the mode was found to be 0 for each as the data is binary data and 0 is evidently the most common value in this instance.
-
+As for the section above, when using the mode for these columns, the mode was found to be 0 for each as the data is binary data and 0 is evidently the most common value in this instance.
 
 * Outlier Detection (IQR Method)
 Below are the charts generated using the IQR outlier detection method. I will now explain these results in further detail.
 
 ![Outlier Detection using the IQR Method](Results/IQR/IQR-Graphs.png)
 
-Starting from the left, the chart shows the number of casualties per incident. The. line at the bottom of the chart represents the median value of the column "number_of_casualties". We can see that thi svalue is likely to be 1. The pink dots on the graph indicate the outliers (as stated at the top of the graph). This tells me that there are some accidents that involve a high casualty count. These outliers are likely to be accurate as occasionally, there may be accidents that occur with a large number of vehicles or vehicles containing a large number of people. They could be true to life and therefore, they haven't been removed. However, it is still imporant that I am aware of them so that I can analyse them.
+Starting from the left, the chart shows the number of casualties per incident. The line at the bottom of the chart represents the median value of the column "number_of_casualties". We can see that this value is likely to be 1. The pink dots on the graph indicate the outliers (as stated at the top of the graph). This tells me that there are some accidents that involve a high casualty count. These outliers are likely to be accurate as occasionally, there may be accidents that occur with a large number of vehicles or vehicles containing a large number of people. They could be true to life and therefore, they haven't been removed. However, it is still imporant that I am aware of them so that I can analyse them.
 
-The middle chart shows how many vehicles are involved in each collision. On this chart, we can also see a blue box. The blue box represents the middle 50% of values. This is the IQR (interquartile range) displayed here this means that most of the collisions that occur involve 1 to 2 vehicles. This is what I would expect to see. Again here, the pink dots represent the outliers and the line represents the median. For the pink values again here, these have been left here as they are likely to be real-world, accurate values.
+The middle chart shows how many vehicles are involved in each collision. On this chart, we can also see a blue box. The blue box represents the middle 50% of values. This is the IQR (interquartile range) displayed here. This means that most of the collisions that occur involve 1 to 2 vehicles. This is what I would expect to see. Again, the pink dots represent the outliers and the line represents the median. For the pink values again here, these have been left in as they are likely to be accurate values.
 
-Moving on to the final graph on the far right, this shows the distribution of the speed limits for the crashes. The line here shows the median which is 30. This makes sense as many of the crashed were not seriosu accidents. These are more likely to happen at low speeds. However, as we can see from the pink dots, some of the crashes occured at much higher speeds. Again, this is very likely to be true to life.
+Moving on to the final graph on the far right, this shows the distribution of the speed limits for the crashes. The line here shows the median which is 30. This makes sense as many of the crashes were not serious accidents. These are more likely to happen at low speeds. However, as we can see from the pink dots, some of the crashes occured at much higher speeds. Again, this is very likely to be true to life.
 
 * Final Null Value Count
 
@@ -110,9 +109,9 @@ The top right graph shows a KDE Plot for the latitudinal distribution. The resul
 
 The bottom left image shows a KDE plot for the longitudinal distribution. This shows the same as the latitudinal graph that I have written about above. However, this image shows there is a wider spread of data longitudinally than there was latitudinally.
 
-The bottom middle graph shows the same type of clustering as the latitude/longitude graph above it. However, using the eating/northing data. There are a few clear outliers within this image. This confirms that the coordinate transformation between the latitude and longitude data and the easting and northing data is consistent as we see very similar results within both graphs.
+The bottom middle graph shows the same type of clustering as the latitude/longitude graph above it. However, using the easting/northing data. There are a few clear outliers within this image. This confirms that the coordinate transformation between the latitude and longitude data and the easting and northing data is consistent as we see very similar results within both graphs.
 
-Finally, the bottom right graph shows that one category dominates entirely within the column. This is accurate as the collisions recorded will be recorded through the authority based within the city of Sheffield. This was data that as I mentioned earlier at the start of the file, I imputed myself.
+Finally, the bottom right graph shows that one category dominates entirely within the column. This is accurate as the collisions recorded will be recorded through the authority based within the city of Sheffield. This was data that, as I mentioned earlier at the start of the file, I imputed myself.
 
 # Feature Engineering
 
@@ -124,9 +123,9 @@ Once I had done this, I displayed to the user which new features would be added 
 
 ![New Feature List](Results/Feature-Engineering-Results/New_Feature_List.png)
 
-The first new feature that I added was "is_weekend". This was very simple. I did this by taking the current "day_of_week" column and using the logic "if the integer is equal to 6 or 7, it belongs to this feature meaning it is a weekend". This meant that any day of the week that then wasn't taken into the new is_weekend feature was left as a normal weekday. This could then be represented within the graph which I will show later within the visualisation section of feature engineering.
+The first new feature that I added was "is_weekend". This was very simple. I did this by taking the current "day_of_week" column and using the logic "if the integer is equal to 6 or 7, it belongs to this feature meaning it is a weekend". This meant that any day of the week that wasn't taken into the new is_weekend feature was left as a normal weekday. This could then be represented within the graph which I will show later within the visualisation section of feature engineering.
 
-The second new feature that I added was "time_of_day". This was slightly more complicated. I already had a column that was called "time". This data within this column was presented in the format of a 24-hour clock. Therefore, all I needed to do was extrapolate the hour from the column (the first each piece of data), and then map it to either Night, Morning, Afternoon or Evening. I also defined "bins" for this section. These helped to place the correct time within the correct category (morning, afternoon etc)
+The second new feature that I added was "time_of_day". This was slightly more complicated. I already had a column that was called "time". The data within this column was presented in the format of a 24-hour clock. Therefore, all I needed to do was extrapolate the hour from the column (the first piece of data), and then map it to either Night, Morning, Afternoon or Evening. I also defined "bins" for this section. These helped to place the correct time within the correct category (morning, afternoon etc)
 
 As I stated within the comments in my code, the bins were defined as 0-6 being Night (12am to 6am), 6-12 being morning (6am to 12pm), 12-18 being afternoon (12pm - 6pm) and finally, 18-24 being evening (6pm - midnight). 
 
@@ -146,7 +145,7 @@ The Fifth new feature that I added was "speed_urban_interaction". This feature a
 
 The Sixth new feature that I added was "high_speed_zone". Simply, this checks whether the "speed_limit" was > (greater than) 60. If it was, it is classed as a high speed zone. Collisions within a high speed zone are more likely to be serious collisions.
 
-The Seventh and final new feature that I added was "collision_age". This aimed to see whetehr there was a difference in the number of collisions in previous years comapred to nowadays. Theoretically, this could then tell me whether road safety has improved or not over the years. However, there are also other factors that come into play here. For example, there may be significantly more drivers on the roads than there has been before. This would mean that the road safety might well have improved but we may not be able to see this statistically represented here.
+The Seventh and final new feature that I added was "collision_age". This aimed to see whether there was a difference in the number of collisions in previous years comapred to nowadays. Theoretically, this could then tell me whether road safety has improved or not over the years. However, there are also other factors that come into play here. For example, there may be significantly more drivers on the roads than there has been before. This would mean that the road safety might well have improved but we may not be able to see this statistically represented here.
 
 * Feature Engineering - Distributions
 
@@ -154,30 +153,32 @@ Once I had added all of my new features, I decided to display my findings on gra
 
 ![Feature Engineering - Graphs](Results/Feature-Engineering-Results/Engineered_features_Visualisation.png)
 
-Beginning at the top left, it was found that the majority of crashed happened on a weekday with just over 5000 on a weekday and around 2500 occuring on the weekend. This seems likely to me as most people will be driving throughout the week and commuting. Furthermore, rush hours from monday-friday mean that there is a high density of road traffic at certain times. This is likely to lead to a lot of collisions. The majority of which are minor (as we saw earlier in the severity chart).
+Beginning at the top left, it was found that the majority of crashed happened on a weekday with just over 5000 on a weekday and around 2500 occuring on the weekend. This seems likely to me as most people will be driving throughout the week and commuting to work. Furthermore, rush hours from monday-friday mean that there is a high density of road traffic at certain times. This is likely to lead to more collisions. The majority of which are minor (as we saw earlier in the severity chart).
 
 The graph at the top middle of the image shows which time of day it was when the collisions occured. Once again, we can see that the charts somewhat confirm my beliefs as there are minimal accidents throughout the night and the majority happen in the afternoon between the hours of 12pm and 6pm (when the final rush hour of the day occurs). This is closely followed by the evening and then morning accidents trail slightly behind. I believe there could be a few different reasons behind the trends that we can see here.
 
-During the final rish hour of the day (usually between 5pm and 6:30pm), most people will be leaving work. There will be a high volume of traffic on the road and people will be tired after being at work all day. This could therefore lead to mistakes and evidently accidents. This could also explain why the accidents occuring in the evening section of the graph is so high. In the morning, this is likely to be slightly lower (and this is backed up by the visual evidence within the graph), as although there is a high volume of traffic on the road. People are usually going to work so they are unlikely to be as tired as when they are coming home and clearly much less likely to be involved in an accident.
+During the final rush hour of the day (usually between 5pm and 6:30pm), most people will be leaving work. There will be a high volume of traffic on the road and people will be tired after being at work all day and want to get home as soon as possible. This could therefore lead to mistakes and evidently accidents. This could also explain why the accidents occuring in the evening section of the graph is so high. In the morning, this is likely to be slightly lower (and this is backed up by the visual evidence within the graph), as although there is a high volume of traffic on the road. People are usually going to work so they are unlikely to be as tired as when they are coming home and clearly much less likely to be involved in an accident.
 
-Moving to the top right of the image, we can see the risk score distribution. This once again confirms what we saw earlier with teh majority of the collisions being classed as "not serious", as the majoroity of the cases are between 1 and 2. This measn there weren't many vehicles involved and therefore there weren't many casualties.
+Moving to the top right of the image, we can see the risk score distribution. This once again confirms what we saw earlier with the majority of the collisions being classed as "not serious", as the majoroity of the cases are between 1 and 2. This measn there weren't many vehicles involved and therefore there weren't many casualties.
 
-Moving to the bottom left graph, we can see that the number of casualties per vehicle is mostly towards the lower end of the scale with the majority being at 1 casualty per vehicle. This would lead me to beliee once again that the majority of the accidents that occur aren't serious.
+Moving to the bottom left graph, we can see that the number of casualties per vehicle is mostly towards the lower end of the scale with the majority being at 1 casualty per vehicle. This would lead me to believe once again that the majority of the accidents that occur aren't serious.
 
-Moving the the bottom middle image, we can see that the majority of collisions occur at normal speed (any speed below 60mph). This also confirms my suspicions that the majority of accidents aren't serious. with over 7000 collisions occuring at a normal speed.
+Moving onto the bottom middle image, we can see that the majority of collisions occur at normal speed (any speed below 60mph). This also confirms my suspicions that the majority of accidents aren't serious. with over 7000 collisions occuring at a normal speed.
 
 Finally, moving to the bottom right image, we can see that the number of collisions has in fact reduced over the last 40 years. This is almost certainly due to the new road safety measures and modern technolgy within cars that actually prevent them from crashing. For example, asissted/automated driving. This could also be due to stricter driving tests making for a higher standard driving across the country. This was a very interesting and surprising result for me as I didn't believe this would be the case. This was something that I hilighted earlier..
 
 * Correlation Matrix (all features)
 
-Below is a correlation matrix for all of the featues within the dataset. I will explain some of the key features that are related to each other, below the image.
+Below is a correlation matrix for all of the featues within the dataset. I will explain some of the key features that are related to each other, shown in the image below.
 
 ![Correlation Matrix For all of the features in the dataset](Results/Feature-Correlation-Matrix/Feature-Correlation-Matrix.png)
 
 Some of the most positive correlations that we can see with the matrix above are:
 
 junction_detail & junction_control - linked at 0.89
+
 junction_control & second_road_class - linked at 0.91
+
 junction_detail & second_road_class - linked at 0.83
 
 It makes sense for these to be related as they are simply describing the types of junction and junction control that are preseent on certain roads. We can tell from this that specific types of junction and junction controls are present on second class roads.

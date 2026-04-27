@@ -431,11 +431,3 @@ For the final page of the dashboard (the model comparison page), firstly, the us
 Within the second half of the page (seen below), the user is directly provided with a the result for the best classification model and the best regression model. As we can see here, the best classification model here was the SVM (default) model.
 
 ![Second Half of my Model Comparison Page](Results/Dashboard-Images/Dashboard-Model-Comparison-2.png)
-
-There are also some things that I would change about my model...
-
-LEFT TO DO:
-
-Video Presentation
-
-Add in neural network work??
